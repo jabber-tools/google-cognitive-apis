@@ -1,0 +1,48 @@
+[package]
+name = "google-cognitive-apis"
+version = "0.1.0"
+authors = ["abezecny"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tokio = { version = "1.5.0" }
+prost = "0.7.0"
+prost-types = "0.7.0"
+tonic = { version = "0.4.2" }
+serde = "1.0.125"
+serde_json = "1.0.64"
+jsonwebtoken = "7.2.0"
+reqwest = { version = "0.11.3", features = ["json"] }
+serde_path_to_error = "0.1.4"
+
+[build-dependencies]
+tonic-build = "0.4.2"
+
+[dev-dependencies]
+gouth = "0.2.1"
+
+
+[features]
+default = [
+    "google-cloud-texttospeech-v1",
+    "google-cloud-texttospeech-v1beta1",
+    "google-cloud-speechtotext-v1",
+    "google-cloud-speechtotext-v1p1beta1",
+    "google-cloud-dialogflow-v2",
+    "google-cloud-dialogflow-v2beta1",
+    "google-cloud-dialogflow-cx-v3",
+    "google-cloud-dialogflow-cx-v3beta1"
+]
+
+google-cloud-texttospeech-v1 = []
+google-cloud-texttospeech-v1beta1 = []
+
+google-cloud-speechtotext-v1 = []
+google-cloud-speechtotext-v1p1beta1 = []
+
+google-cloud-dialogflow-v2 = []
+google-cloud-dialogflow-v2beta1 = []
+google-cloud-dialogflow-cx-v3 = []
+google-cloud-dialogflow-cx-v3beta1 = []
