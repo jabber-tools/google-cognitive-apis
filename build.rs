@@ -28,6 +28,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         )
         .unwrap();
 
+    // building dialogflow cx separately as
+    // it needs to be in nested folder
     tonic_build::configure()
         .build_client(true)
         .build_server(false)
