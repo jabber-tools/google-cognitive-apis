@@ -10,3 +10,13 @@ Selected Google Cloud APIs exposed via GRPC and REST:
 
 ## Google API proto definitions
 Google proto definitions have been taken from [this](https://github.com/googleapis/googleapis) repo.
+
+## Examples
+
+```rust
+cargo build --examples
+```
+
+```rust
+cargo run --example recognizer
+```

@@ -1,3 +1,4 @@
+use gouth::Error as GAuthError;
 use reqwest::{self, header::InvalidHeaderValue};
 use std::result;
 use tonic::transport::Error as TTError;
@@ -64,8 +65,8 @@ impl From<TTError> for Error {
     }
 }
 
-impl From<Status> for Error {
-    fn from(error: Status) -> Error {
+impl From<GAuthError> for Error {
+    fn from(error: GAuthError) -> Error {
         Error {
             message: format!("{}", error),
         }
