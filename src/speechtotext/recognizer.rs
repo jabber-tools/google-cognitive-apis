@@ -5,6 +5,7 @@ use crate::api::grpc::google::cloud::speechtotext::v1::{
 use crate::errors::Result;
 use crate::CERTIFICATES;
 use async_stream::try_stream;
+use std::result::Result as StdResult;
 use gouth::Builder;
 use log::*;
 use std::sync::Arc;
@@ -17,15 +18,20 @@ use tonic::{
 use futures_core::stream::Stream;
 use futures_util::pin_mut;
 use futures_util::stream::StreamExt;
+use tokio_stream::wrappers::ReceiverStream;
 use tokio::sync::mpsc::{self, Receiver, Sender};
 
 pub struct Recognizer {
-    pub speech_client: SpeechClient<Channel>,
-    audio_receiver: Option<mpsc::Receiver<Vec<u8>>>,
+    speech_client: SpeechClient<Channel>,
+    audio_sender: mpsc::Sender<StreamingRecognizeRequest>,
+    audio_receiver: Option<mpsc::Receiver<StreamingRecognizeRequest>>,
 }
 
 impl Recognizer {
-    pub async fn new(google_credentials: impl AsRef<str>) -> Result<Self> {
+    pub async fn new(
+        google_credentials: impl AsRef<str>,
+        config: StreamingRecognitionConfig,
+    ) -> Result<Self> {
         let tls_config = ClientTlsConfig::new()
             .ca_certificate(Certificate::from_pem(CERTIFICATES))
             .domain_name("speech.googleapis.com");
@@ -46,26 +52,66 @@ impl Recognizer {
                 Ok(req)
             });
 
+        let (audio_sender, audio_receiver) = mpsc::channel::<StreamingRecognizeRequest>(10240);
+
+        let streaming_config = StreamingRecognizeRequest {
+            streaming_request: Some(StreamingRequest::StreamingConfig(config)),
+        };
+
+        audio_sender.send(streaming_config).await?;
+
         Ok(Recognizer {
             speech_client,
-            audio_receiver: None,
+            audio_sender,
+            audio_receiver: Some(audio_receiver),
         })
     }
 
-    pub fn get_audio_sink(&mut self) -> mpsc::Sender<Vec<u8>> {
-        let (audio_sender, audio_receiver) = mpsc::channel::<Vec<u8>>(10240);
-        self.audio_receiver = Some(audio_receiver);
-        audio_sender
+    pub fn get_audio_sink(&mut self) -> mpsc::Sender<StreamingRecognizeRequest> {
+        self.audio_sender.clone()
+    }
+
+    /// convenience function so that client does not have to create full StreamingRecognizeRequest
+    /// and can just pass audio bytes vector instead
+    pub fn streaming_request_from_bytes(audio_bytes: Vec<u8>) -> StreamingRecognizeRequest {
+        StreamingRecognizeRequest {
+            streaming_request: Some(StreamingRequest::AudioContent(audio_bytes)),
+        }
     }
 
     pub async fn streaming_recognize(&mut self) -> impl Stream<Item = Result<Vec<u8>>> + '_ {
         try_stream! {
-            if let Some(audio_receiver) = &mut self.audio_receiver {
-                while let Some(audio_bytes) = audio_receiver.recv().await {
-                    let output = audio_bytes.iter().map(|x| x + 1).collect();
-                    yield output;
-                }
-            }
+                // self.speech_client.streaming_recognize(receiver).await?;
+
+                // yank self.audio_receiver so that we can consume it
+                let mut audio_receiver = self.audio_receiver.take().unwrap();
+
+                let streaming_recognize_result: StdResult<
+                    tonic::Response<Streaming<StreamingRecognizeResponse>>,
+                    tonic::Status,
+                > = self.speech_client.streaming_recognize(ReceiverStream::new(audio_receiver)).await;
+
+                let mut response_stream: Streaming<StreamingRecognizeResponse> =
+                    streaming_recognize_result?.into_inner();
+
+                /*while let Some(streaming_recognize_request) = audio_receiver.recv().await {
+                    if let Some(streaming_request) = streaming_recognize_request.streaming_request {
+                        match streaming_request {
+                            StreamingRequest::StreamingConfig(_) => {
+                                // we are already sending streaming config on behalf of client
+                                // in new method. If by any chance he will sent another streaming
+                                // config (which is not allowed by API contract) we will simply ignore it.
+                            }
+                            StreamingRequest::AudioContent(audio_bytes) => {
+                                let output = audio_bytes.iter().map(|x| x + 1).collect();
+                                yield output;
+                            }
+                        }
+                    }
+                }*/
+                yield vec![1,2,3];
+
+
         }
     }
 }

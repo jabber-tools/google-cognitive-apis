@@ -17,11 +17,8 @@ jsonwebtoken = "7.2.0"
 reqwest = { version = "0.11.3", features = ["json"] }
 serde_path_to_error = "0.1.4"
 log = "0.4.14"
-env_logger = "0.8.3"
 gouth = "0.2.1"
-
-# TBD: is this needed?
-# tokio-stream = "0.1.5"
+tokio-stream = "0.1.5"
 async-stream = "0.3.1"
 futures-core = "0.3.14"
 futures-util = "0.3.14"
@@ -30,7 +27,7 @@ futures-util = "0.3.14"
 tonic-build = "0.4.2"
 
 [dev-dependencies]
-
+env_logger = "0.8.3"
 
 
 [features]

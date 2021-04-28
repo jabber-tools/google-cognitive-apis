@@ -1,8 +1,10 @@
+use crate::api::grpc::google::cloud::speechtotext::v1::StreamingRecognizeRequest;
 use gouth::Error as GAuthError;
 use reqwest::{self, header::InvalidHeaderValue};
 use std::result;
+use tokio::sync::mpsc::error::SendError;
 use tonic::transport::Error as TTError;
-use tonic::Status;
+use tonic::Status as TStatus;
 
 #[derive(Debug)]
 pub struct Error {
@@ -67,6 +69,22 @@ impl From<TTError> for Error {
 
 impl From<GAuthError> for Error {
     fn from(error: GAuthError) -> Error {
+        Error {
+            message: format!("{}", error),
+        }
+    }
+}
+
+impl From<TStatus> for Error {
+    fn from(error: TStatus) -> Error {
+        Error {
+            message: format!("{}", error),
+        }
+    }
+}
+
+impl From<SendError<StreamingRecognizeRequest>> for Error {
+    fn from(error: SendError<StreamingRecognizeRequest>) -> Error {
         Error {
             message: format!("{}", error),
         }
