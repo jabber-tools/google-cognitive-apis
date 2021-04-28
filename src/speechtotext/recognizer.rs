@@ -21,7 +21,7 @@ use tokio::sync::mpsc::{self, Receiver, Sender};
 
 pub struct Recognizer {
     pub speech_client: SpeechClient<Channel>,
-    audio_receiver: Option<mpsc::Receiver<u8>>,
+    audio_receiver: Option<mpsc::Receiver<Vec<u8>>>,
 }
 
 impl Recognizer {
@@ -52,23 +52,20 @@ impl Recognizer {
         })
     }
 
-    pub fn get_audio_sink(&mut self) -> mpsc::Sender<u8> {
-        let (audio_sender, audio_receiver) = mpsc::channel::<u8>(10240);
+    pub fn get_audio_sink(&mut self) -> mpsc::Sender<Vec<u8>> {
+        let (audio_sender, audio_receiver) = mpsc::channel::<Vec<u8>>(10240);
         self.audio_receiver = Some(audio_receiver);
         audio_sender
     }
 
-    pub async fn streaming_recognize(&mut self) -> impl Stream<Item = Result<u8>> + '_ {
+    pub async fn streaming_recognize(&mut self) -> impl Stream<Item = Result<Vec<u8>>> + '_ {
         try_stream! {
             if let Some(audio_receiver) = &mut self.audio_receiver {
                 while let Some(audio_bytes) = audio_receiver.recv().await {
-                    let output = audio_bytes * 2;
+                    let output = audio_bytes.iter().map(|x| x + 1).collect();
                     yield output;
                 }
             }
-            /*for i in 0..3 {
-                yield i;
-            }*/
         }
     }
 }

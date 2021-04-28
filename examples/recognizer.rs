@@ -19,10 +19,10 @@ async fn main() {
     pin_mut!(s); // needed for iteration
 
     tokio::spawn(async move {
-        audio_sender.send(1).await.unwrap();
-        audio_sender.send(2).await.unwrap();
-        audio_sender.send(3).await.unwrap();
-        audio_sender.send(4).await.unwrap();
+        audio_sender.send(vec![1, 2]).await.unwrap();
+        audio_sender.send(vec![3, 4]).await.unwrap();
+        audio_sender.send(vec![5, 6]).await.unwrap();
+        audio_sender.send(vec![7, 8]).await.unwrap();
     });
 
     while let Some(val) = s.next().await {
