@@ -2,7 +2,7 @@ use crate::api::grpc::google::cloud::speechtotext::v1::{
     speech_client::SpeechClient, streaming_recognize_request::StreamingRequest,
     StreamingRecognitionConfig, StreamingRecognizeRequest, StreamingRecognizeResponse,
 };
-use crate::errors::{Error, Result};
+use crate::errors::Result;
 use crate::CERTIFICATES;
 use async_stream::try_stream;
 use gouth::Builder;
@@ -12,16 +12,14 @@ use std::sync::Arc;
 use tonic::{
     metadata::MetadataValue,
     transport::{Certificate, Channel, ClientTlsConfig},
-    Code, Streaming,
+    Streaming,
 };
 
 use futures_core::stream::Stream;
-use futures_util::pin_mut;
-use futures_util::stream::StreamExt;
-use tokio::sync::mpsc::{self, Receiver, Sender};
+use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 
-/// Soeech recognizer
+/// Speech recognizer
 pub struct Recognizer {
     speech_client: SpeechClient<Channel>,
     audio_sender: mpsc::Sender<StreamingRecognizeRequest>,
@@ -29,8 +27,8 @@ pub struct Recognizer {
 }
 
 impl Recognizer {
-    /// Creates new speech recongnizer from provided
-    /// google credentials and google speech configuration
+    /// Creates new speech recognizer from provided
+    /// Google credentials and google speech configuration.
     pub async fn new(
         google_credentials: impl AsRef<str>,
         config: StreamingRecognitionConfig,
@@ -70,23 +68,24 @@ impl Recognizer {
         })
     }
 
-    /// returns sender than can be used to stream in audio bytes
+    /// Returns sender than can be used to stream in audio bytes.
     pub fn get_audio_sink(&mut self) -> mpsc::Sender<StreamingRecognizeRequest> {
         self.audio_sender.clone()
     }
 
-    /// convenience function so that client does not have to create full StreamingRecognizeRequest
-    /// and can just pass audio bytes vector instead
+    /// Convenience function so that client does not have to create full StreamingRecognizeRequest
+    /// and can just pass audio bytes vector instead.
     pub fn streaming_request_from_bytes(audio_bytes: Vec<u8>) -> StreamingRecognizeRequest {
         StreamingRecognizeRequest {
             streaming_request: Some(StreamingRequest::AudioContent(audio_bytes)),
         }
     }
 
-    /// initiates bidirectional streaming. returns
+    /// Initiates bidirectional streaming. returns
     /// asynchronous stream of streaming recognition results
     /// Audio data must be fed into recognizer via channel sender
-    /// returned by function get_audio_sink
+    /// returned by function get_audio_sink.
+    #[allow(unreachable_code)]
     pub async fn streaming_recognize(
         &mut self,
     ) -> impl Stream<Item = Result<StreamingRecognizeResponse>> + '_ {
@@ -101,11 +100,13 @@ impl Recognizer {
                     let mut response_stream: Streaming<StreamingRecognizeResponse> =
                         streaming_recognize_result?.into_inner();
 
+                    trace!("streaming_recognize: entering loop");
                     loop {
                         if let Some(streaming_recognize_response) = response_stream.message().await? {
                             yield streaming_recognize_response;
                         }
                     }
+                    trace!("streaming_recognize: leaving loop");
                 }
         }
     }

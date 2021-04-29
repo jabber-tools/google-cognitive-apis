@@ -4,7 +4,6 @@ use google_cognitive_apis::speechtotext::recognizer::Recognizer;
 
 use google_cognitive_apis::api::grpc::google::cloud::speechtotext::v1::{
     recognition_config::AudioEncoding, RecognitionConfig, StreamingRecognitionConfig,
-    StreamingRecognizeRequest, StreamingRecognizeResponse,
 };
 
 use log::*;
