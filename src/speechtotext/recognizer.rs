@@ -1,7 +1,9 @@
 use crate::api::grpc::google::cloud::speechtotext::v1::{
     speech_client::SpeechClient, streaming_recognize_request::StreamingRequest,
-    StreamingRecognitionConfig, StreamingRecognizeRequest, StreamingRecognizeResponse,
+    LongRunningRecognizeRequest, StreamingRecognitionConfig, StreamingRecognizeRequest,
+    StreamingRecognizeResponse,
 };
+use crate::api::grpc::google::longrunning::Operation;
 use crate::errors::Result;
 use crate::CERTIFICATES;
 use async_stream::try_stream;
@@ -12,7 +14,7 @@ use std::sync::Arc;
 use tonic::{
     metadata::MetadataValue,
     transport::{Certificate, Channel, ClientTlsConfig},
-    Streaming,
+    Response as GrpcResponse, Streaming,
 };
 
 use futures_core::stream::Stream;
@@ -22,14 +24,15 @@ use tokio_stream::wrappers::ReceiverStream;
 /// Speech recognizer
 pub struct Recognizer {
     speech_client: SpeechClient<Channel>,
-    audio_sender: mpsc::Sender<StreamingRecognizeRequest>,
+    audio_sender: Option<mpsc::Sender<StreamingRecognizeRequest>>,
     audio_receiver: Option<mpsc::Receiver<StreamingRecognizeRequest>>,
 }
 
 impl Recognizer {
     /// Creates new speech recognizer from provided
     /// Google credentials and google speech configuration.
-    pub async fn new(
+    /// This kind of recognizer can be used for streaming recognition.
+    pub async fn new_for_streaming(
         google_credentials: impl AsRef<str>,
         config: StreamingRecognitionConfig,
     ) -> Result<Self> {
@@ -63,14 +66,49 @@ impl Recognizer {
 
         Ok(Recognizer {
             speech_client,
-            audio_sender,
+            audio_sender: Some(audio_sender),
             audio_receiver: Some(audio_receiver),
         })
     }
 
+    /// Creates new speech recognizer from provided
+    /// Google credentials. This kind of recognizer can be used
+    /// for long running recognition.
+    pub async fn new_for_long_running(google_credentials: impl AsRef<str>) -> Result<Self> {
+        let tls_config = ClientTlsConfig::new()
+            .ca_certificate(Certificate::from_pem(CERTIFICATES))
+            .domain_name("speech.googleapis.com");
+
+        let channel = Channel::from_static("https://speech.googleapis.com")
+            .tls_config(tls_config.clone())?
+            //.timeout(std::time::Duration::from_secs(2))
+            .connect()
+            .await?;
+
+        let token = Builder::new().json(google_credentials).build()?;
+
+        let token_header_val: Arc<String> = token.header_value()?;
+        let speech_client: SpeechClient<Channel> =
+            SpeechClient::with_interceptor(channel, move |mut req: tonic::Request<()>| {
+                let meta = MetadataValue::from_str(&token_header_val).unwrap();
+                req.metadata_mut().insert("authorization", meta);
+                Ok(req)
+            });
+
+        Ok(Recognizer {
+            speech_client,
+            audio_sender: None,
+            audio_receiver: None,
+        })
+    }
+
     /// Returns sender than can be used to stream in audio bytes.
-    pub fn get_audio_sink(&mut self) -> mpsc::Sender<StreamingRecognizeRequest> {
-        self.audio_sender.clone()
+    pub fn get_audio_sink(&mut self) -> Option<mpsc::Sender<StreamingRecognizeRequest>> {
+        return if let Some(audio_sender) = &self.audio_sender {
+            Some(audio_sender.clone())
+        } else {
+            None
+        };
     }
 
     /// Convenience function so that client does not have to create full StreamingRecognizeRequest
@@ -109,5 +147,12 @@ impl Recognizer {
                     trace!("streaming_recognize: leaving loop");
                 }
         }
+    }
+
+    pub async fn long_running_recognize(
+        &mut self,
+        request: LongRunningRecognizeRequest,
+    ) -> Result<GrpcResponse<Operation>> {
+        Ok(self.speech_client.long_running_recognize(request).await?)
     }
 }

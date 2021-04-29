@@ -18,5 +18,9 @@ cargo build --examples
 ```
 
 ```rust
-cargo run --example recognizer
+cargo run --example recognizer_long_running
+```
+
+```rust
+cargo run --example recognizer_streaming
 ```

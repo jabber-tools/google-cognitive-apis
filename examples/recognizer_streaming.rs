@@ -15,7 +15,7 @@ use std::io::Read;
 async fn main() {
     env::set_var("RUST_LOG", "info");
     env_logger::init();
-    info!("recognizer example");
+    info!("recognizer streaming example");
 
     let credentials = fs::read_to_string("/tmp/cred.json").unwrap();
     let streaming_config = StreamingRecognitionConfig {
@@ -39,11 +39,11 @@ async fn main() {
         interim_results: true,
     };
 
-    let mut recognizer = Recognizer::new(credentials, streaming_config)
+    let mut recognizer = Recognizer::new_for_streaming(credentials, streaming_config)
         .await
         .unwrap();
 
-    let audio_sender = recognizer.get_audio_sink();
+    let audio_sender = recognizer.get_audio_sink().unwrap();
 
     let stream = recognizer.streaming_recognize().await;
     pin_mut!(stream); // needed for iteration
