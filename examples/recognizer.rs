@@ -9,7 +9,8 @@ use google_cognitive_apis::api::grpc::google::cloud::speechtotext::v1::{
 
 use log::*;
 use std::env;
-use std::fs;
+use std::fs::{self, File};
+use std::io::Read;
 
 #[tokio::main]
 async fn main() {
@@ -21,7 +22,7 @@ async fn main() {
     let streaming_config = StreamingRecognitionConfig {
         config: Some(RecognitionConfig {
             encoding: AudioEncoding::Linear16 as i32,
-            sample_rate_hertz: 16000,
+            sample_rate_hertz: 8000,
             audio_channel_count: 1,
             enable_separate_recognition_per_channel: false,
             language_code: "en-US".to_string(),
@@ -45,29 +46,35 @@ async fn main() {
 
     let audio_sender = recognizer.get_audio_sink();
 
-    let s = recognizer.streaming_recognize().await;
-    pin_mut!(s); // needed for iteration
+    let stream = recognizer.streaming_recognize().await;
+    pin_mut!(stream); // needed for iteration
 
     tokio::spawn(async move {
-        audio_sender
-            .send(Recognizer::streaming_request_from_bytes(vec![1, 2]))
-            .await
-            .unwrap();
-        audio_sender
-            .send(Recognizer::streaming_request_from_bytes(vec![1, 2]))
-            .await
-            .unwrap();
-        audio_sender
-            .send(Recognizer::streaming_request_from_bytes(vec![1, 2]))
-            .await
-            .unwrap();
-        audio_sender
-            .send(Recognizer::streaming_request_from_bytes(vec![1, 2]))
-            .await
-            .unwrap();
+        let mut file = File::open("/tmp/hello_rust_8.wav").unwrap();
+        let chunk_size = 1024;
+
+        loop {
+            let mut chunk = Vec::with_capacity(chunk_size);
+            let n = file
+                .by_ref()
+                .take(chunk_size as u64)
+                .read_to_end(&mut chunk)
+                .unwrap();
+            if n == 0 {
+                break;
+            }
+
+            let streaming_request = Recognizer::streaming_request_from_bytes(chunk);
+
+            audio_sender.send(streaming_request).await.unwrap();
+
+            if n < chunk_size {
+                break;
+            }
+        }
     });
 
-    while let Some(val) = s.next().await {
-        info!("got value {:?}", val);
+    while let Some(val) = stream.next().await {
+        info!("recognition result {:?}", val);
     }
 }
