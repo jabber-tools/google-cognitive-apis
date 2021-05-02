@@ -3,7 +3,8 @@ use google_cognitive_apis::api::grpc::google::cloud::speechtotext::v1::{
     RecognitionAudio, RecognitionConfig,
 };
 use google_cognitive_apis::api::grpc::google::longrunning::{
-    operations_client::OperationsClient, GetOperationRequest, WaitOperationRequest,
+    operation::Result as LROResult, operations_client::OperationsClient, GetOperationRequest,
+    Operation, WaitOperationRequest,
 };
 use google_cognitive_apis::speechtotext::recognizer::Recognizer;
 use google_cognitive_apis::CERTIFICATES;
@@ -13,6 +14,9 @@ use std::env;
 use std::fs::{self, File};
 use std::io::Read;
 use std::sync::Arc;
+use std::time::Duration;
+use tokio::time::sleep;
+use tonic::Response as TonicResponse;
 
 use tonic::{
     metadata::MetadataValue,
@@ -73,7 +77,7 @@ async fn main() {
 
             let long_running_operation_name = long_running_operation.name;
 
-            let wait_req = WaitOperationRequest {
+            let _wait_req = WaitOperationRequest {
                 name: long_running_operation_name.clone(),
                 timeout: None,
             };
@@ -101,9 +105,28 @@ async fn main() {
                     Ok(req)
                 });
 
-            // let final_result = oper_client.wait_operation(wait_req).await.unwrap();
-            let final_result = oper_client.get_operation(gop_req).await.unwrap();
-            info!("final_result ok {:?}", final_result);
+            // not working
+            // let _final_result = oper_client.wait_operation(_wait_req).await.unwrap();
+
+            // wait 5 sec so that we have some result in long running operation
+            // retrieved by get_operation call bellow
+            sleep(Duration::from_millis(5000)).await;
+
+            let tonic_response: TonicResponse<Operation> =
+                oper_client.get_operation(gop_req).await.unwrap();
+            info!("tonic_response ok {:?}", tonic_response);
+
+            let lro_result: LROResult = tonic_response.into_inner().result.unwrap();
+            info!("lro_result {:#?}", lro_result);
+
+            match lro_result {
+                LROResult::Error(lro_err) => {
+                    error!("LROResult::Error {:#?}", lro_err);
+                }
+                LROResult::Response(lro_resp) => {
+                    info!("LROResult::Response {:#?}", lro_resp);
+                }
+            }
         }
     }
 }
