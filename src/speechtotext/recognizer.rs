@@ -3,7 +3,10 @@ use crate::api::grpc::google::cloud::speechtotext::v1::{
     LongRunningRecognizeRequest, StreamingRecognitionConfig, StreamingRecognizeRequest,
     StreamingRecognizeResponse,
 };
-use crate::api::grpc::google::longrunning::Operation;
+use crate::api::grpc::google::longrunning::{
+    operation::Result as OperationResult, operations_client::OperationsClient, GetOperationRequest,
+    Operation,
+};
 use crate::errors::Result;
 use crate::CERTIFICATES;
 use async_stream::try_stream;
@@ -11,6 +14,7 @@ use gouth::Builder;
 use log::*;
 use std::result::Result as StdResult;
 use std::sync::Arc;
+use tonic::Response as TonicResponse;
 use tonic::{
     metadata::MetadataValue,
     transport::{Certificate, Channel, ClientTlsConfig},
@@ -18,12 +22,15 @@ use tonic::{
 };
 
 use futures_core::stream::Stream;
+use std::time::Duration;
 use tokio::sync::mpsc;
+use tokio::time::sleep;
 use tokio_stream::wrappers::ReceiverStream;
 
 /// Speech recognizer
 pub struct Recognizer {
     speech_client: SpeechClient<Channel>,
+    operations_client: Option<OperationsClient<Channel>>,
     audio_sender: Option<mpsc::Sender<StreamingRecognizeRequest>>,
     audio_receiver: Option<mpsc::Receiver<StreamingRecognizeRequest>>,
 }
@@ -66,6 +73,7 @@ impl Recognizer {
 
         Ok(Recognizer {
             speech_client,
+            operations_client: None,
             audio_sender: Some(audio_sender),
             audio_receiver: Some(audio_receiver),
         })
@@ -88,15 +96,25 @@ impl Recognizer {
         let token = Builder::new().json(google_credentials).build()?;
 
         let token_header_val: Arc<String> = token.header_value()?;
+        let token_header_val2: Arc<String> = token_header_val.clone();
+
         let speech_client: SpeechClient<Channel> =
-            SpeechClient::with_interceptor(channel, move |mut req: tonic::Request<()>| {
+            SpeechClient::with_interceptor(channel.clone(), move |mut req: tonic::Request<()>| {
                 let meta = MetadataValue::from_str(&token_header_val).unwrap();
+                req.metadata_mut().insert("authorization", meta);
+                Ok(req)
+            });
+
+        let operations_client =
+            OperationsClient::with_interceptor(channel, move |mut req: tonic::Request<()>| {
+                let meta = MetadataValue::from_str(&token_header_val2).unwrap();
                 req.metadata_mut().insert("authorization", meta);
                 Ok(req)
             });
 
         Ok(Recognizer {
             speech_client,
+            operations_client: Some(operations_client),
             audio_sender: None,
             audio_receiver: None,
         })
@@ -154,5 +172,27 @@ impl Recognizer {
         request: LongRunningRecognizeRequest,
     ) -> Result<GrpcResponse<Operation>> {
         Ok(self.speech_client.long_running_recognize(request).await?)
+    }
+
+    pub async fn long_running_wait(
+        &mut self,
+        operation: Operation,
+    ) -> Result<Option<OperationResult>> {
+        let operation_req = GetOperationRequest {
+            name: operation.name.clone(),
+        };
+
+        loop {
+            if let Some(oper_client) = &mut self.operations_client {
+                let tonic_response: TonicResponse<Operation> =
+                    oper_client.get_operation(operation_req.clone()).await?;
+                let operation = tonic_response.into_inner();
+                if operation.done == true {
+                    return Ok(operation.result);
+                } else {
+                    sleep(Duration::from_millis(1000)).await;
+                }
+            }
+        }
     }
 }
