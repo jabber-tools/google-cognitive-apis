@@ -3,7 +3,7 @@ use google_cognitive_apis::api::grpc::google::cloud::speechtotext::v1::{
     RecognitionAudio, RecognitionConfig,
 };
 use google_cognitive_apis::api::grpc::google::longrunning::{
-    operations_client::OperationsClient, WaitOperationRequest,
+    operations_client::OperationsClient, GetOperationRequest, WaitOperationRequest,
 };
 use google_cognitive_apis::speechtotext::recognizer::Recognizer;
 use google_cognitive_apis::CERTIFICATES;
@@ -71,16 +71,22 @@ async fn main() {
             let long_running_operation = grpc_response.into_inner();
             info!("long_running_operation ok {:?}", long_running_operation);
 
+            let long_running_operation_name = long_running_operation.name;
+
             let wait_req = WaitOperationRequest {
-                name: long_running_operation.name,
+                name: long_running_operation_name.clone(),
                 timeout: None,
+            };
+
+            let gop_req = GetOperationRequest {
+                name: long_running_operation_name.clone(),
             };
 
             let tls_config = ClientTlsConfig::new()
                 .ca_certificate(Certificate::from_pem(CERTIFICATES))
-                .domain_name("longrunning.googleapis.com");
+                .domain_name("speech.googleapis.com");
 
-            let channel = Channel::from_static("https://longrunning.googleapis.com")
+            let channel = Channel::from_static("https://speech.googleapis.com")
                 .tls_config(tls_config.clone())
                 .unwrap()
                 //.timeout(std::time::Duration::from_secs(2))
@@ -98,8 +104,6 @@ async fn main() {
             // let final_result = oper_client.wait_operation(wait_req).await.unwrap();
             let final_result = oper_client.get_operation(gop_req).await.unwrap();
             info!("final_result ok {:?}", final_result);
-
-
         }
     }
 }
