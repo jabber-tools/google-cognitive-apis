@@ -78,9 +78,9 @@ async fn main() {
 
             let tls_config = ClientTlsConfig::new()
                 .ca_certificate(Certificate::from_pem(CERTIFICATES))
-                .domain_name("speech.googleapis.com");
+                .domain_name("longrunning.googleapis.com");
 
-            let channel = Channel::from_static("https://speech.googleapis.com")
+            let channel = Channel::from_static("https://longrunning.googleapis.com")
                 .tls_config(tls_config.clone())
                 .unwrap()
                 //.timeout(std::time::Duration::from_secs(2))
@@ -95,8 +95,11 @@ async fn main() {
                     Ok(req)
                 });
 
-            let final_result = oper_client.wait_operation(wait_req).await.unwrap();
+            // let final_result = oper_client.wait_operation(wait_req).await.unwrap();
+            let final_result = oper_client.get_operation(gop_req).await.unwrap();
             info!("final_result ok {:?}", final_result);
+
+
         }
     }
 }
