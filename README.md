@@ -13,12 +13,20 @@ Google proto definitions have been taken from [this](https://github.com/googleap
 
 ## Examples
 
+### How to build
+
 ```rust
 cargo build --examples
 ```
 
+### How to run
+
 ```rust
-cargo run --example recognizer_long_running
+cargo run --example recognizer_sync
+```
+
+```rust
+cargo run --example recognizer_async
 ```
 
 ```rust

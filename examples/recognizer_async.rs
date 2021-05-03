@@ -12,7 +12,7 @@ use std::io::Read;
 async fn main() {
     env::set_var("RUST_LOG", "info");
     env_logger::init();
-    info!("recognizer long running example");
+    info!("asynchronous recognizer example");
 
     let credentials = fs::read_to_string("/tmp/cred.json").unwrap();
 
@@ -42,7 +42,7 @@ async fn main() {
         }),
     };
 
-    let mut recognizer = Recognizer::new_for_long_running(credentials.clone())
+    let mut recognizer = Recognizer::create_asynchronous_recognizer(credentials.clone())
         .await
         .unwrap();
 

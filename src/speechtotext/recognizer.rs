@@ -1,7 +1,7 @@
 use crate::api::grpc::google::cloud::speechtotext::v1::{
     speech_client::SpeechClient, streaming_recognize_request::StreamingRequest,
-    LongRunningRecognizeRequest, LongRunningRecognizeResponse, StreamingRecognitionConfig,
-    StreamingRecognizeRequest, StreamingRecognizeResponse,
+    LongRunningRecognizeRequest, LongRunningRecognizeResponse, RecognizeRequest, RecognizeResponse,
+    StreamingRecognitionConfig, StreamingRecognizeRequest, StreamingRecognizeResponse,
 };
 use crate::api::grpc::google::longrunning::{
     operation::Result as OperationResult, operations_client::OperationsClient, GetOperationRequest,
@@ -73,11 +73,10 @@ impl Recognizer {
     /// Creates new speech recognizer from provided
     /// Google credentials and google speech configuration.
     /// This kind of recognizer can be used for streaming recognition.
-    pub async fn new_for_streaming(
+    pub async fn create_streaming_recognizer(
         google_credentials: impl AsRef<str>,
         config: StreamingRecognitionConfig,
     ) -> Result<Self> {
-
         let channel = Recognizer::new_grpc_channel().await?;
 
         let token = Builder::new().json(google_credentials).build()?;
@@ -105,7 +104,9 @@ impl Recognizer {
     /// Creates new speech recognizer from provided
     /// Google credentials. This kind of recognizer can be used
     /// for long running recognition.
-    pub async fn new_for_long_running(google_credentials: impl AsRef<str>) -> Result<Self> {
+    pub async fn create_asynchronous_recognizer(
+        google_credentials: impl AsRef<str>,
+    ) -> Result<Self> {
         let channel = Recognizer::new_grpc_channel().await?;
 
         let token = Builder::new().json(google_credentials).build()?;
@@ -124,6 +125,30 @@ impl Recognizer {
         Ok(Recognizer {
             speech_client,
             operations_client: Some(operations_client),
+            audio_sender: None,
+            audio_receiver: None,
+        })
+    }
+
+    /// Creates new speech recognizer from provided
+    /// Google credentials. This kind of recognizer can be used
+    /// for synchronous recognition.
+    pub async fn create_synchronous_recognizer(
+        google_credentials: impl AsRef<str>,
+    ) -> Result<Self> {
+        let channel = Recognizer::new_grpc_channel().await?;
+
+        let token = Builder::new().json(google_credentials).build()?;
+        let token_header_val: Arc<String> = token.header_value()?;
+
+        let speech_client: SpeechClient<Channel> = SpeechClient::with_interceptor(
+            channel.clone(),
+            Recognizer::new_interceptor(token_header_val.clone())?,
+        );
+
+        Ok(Recognizer {
+            speech_client,
+            operations_client: None,
             audio_sender: None,
             audio_receiver: None,
         })
@@ -233,5 +258,12 @@ impl Recognizer {
                 }
             }
         }
+    }
+
+    /// Performs synchronous speech recognition
+    pub async fn recognize(&mut self, request: RecognizeRequest) -> Result<RecognizeResponse> {
+        let tonic_response: TonicResponse<RecognizeResponse> =
+            self.speech_client.recognize(request).await?;
+        Ok(tonic_response.into_inner())
     }
 }
