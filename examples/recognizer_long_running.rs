@@ -1,13 +1,12 @@
 use google_cognitive_apis::api::grpc::google::cloud::speechtotext::v1::{
     recognition_audio::AudioSource, recognition_config::AudioEncoding, LongRunningRecognizeRequest,
-    RecognitionAudio, RecognitionConfig,
+    LongRunningRecognizeResponse, RecognitionAudio, RecognitionConfig,
 };
 use google_cognitive_apis::speechtotext::recognizer::Recognizer;
 use log::*;
 use std::env;
 use std::fs::{self, File};
 use std::io::Read;
-
 
 #[tokio::main]
 async fn main() {
@@ -58,12 +57,12 @@ async fn main() {
             let long_running_operation = grpc_response.into_inner();
             info!("long_running_operation ok {:?}", long_running_operation);
 
-            let result = recognizer
-                .long_running_wait(long_running_operation)
+            let llo_response: Option<LongRunningRecognizeResponse> = recognizer
+                .long_running_wait(long_running_operation, None)
                 .await
                 .unwrap();
 
-            info!("long_running_operation result {:#?}", result);
+            info!("llo_response result {:#?}", llo_response);
         }
     }
 }

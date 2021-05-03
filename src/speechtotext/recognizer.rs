@@ -1,19 +1,26 @@
 use crate::api::grpc::google::cloud::speechtotext::v1::{
     speech_client::SpeechClient, streaming_recognize_request::StreamingRequest,
-    LongRunningRecognizeRequest, StreamingRecognitionConfig, StreamingRecognizeRequest,
-    StreamingRecognizeResponse,
+    LongRunningRecognizeRequest, LongRunningRecognizeResponse, StreamingRecognitionConfig,
+    StreamingRecognizeRequest, StreamingRecognizeResponse,
 };
 use crate::api::grpc::google::longrunning::{
     operation::Result as OperationResult, operations_client::OperationsClient, GetOperationRequest,
     Operation,
 };
-use crate::errors::Result;
+use crate::errors::{Error, Result};
 use crate::CERTIFICATES;
 use async_stream::try_stream;
+use futures_core::stream::Stream;
 use gouth::Builder;
 use log::*;
+use prost::Message;
+use std::io::Cursor;
 use std::result::Result as StdResult;
 use std::sync::Arc;
+use std::time::Duration;
+use tokio::sync::mpsc;
+use tokio::time::sleep;
+use tokio_stream::wrappers::ReceiverStream;
 use tonic::Response as TonicResponse;
 use tonic::{
     metadata::MetadataValue,
@@ -21,13 +28,7 @@ use tonic::{
     Response as GrpcResponse, Streaming,
 };
 
-use futures_core::stream::Stream;
-use std::time::Duration;
-use tokio::sync::mpsc;
-use tokio::time::sleep;
-use tokio_stream::wrappers::ReceiverStream;
-
-/// Speech recognizer
+/// Google Speech API recognizer
 pub struct Recognizer {
     speech_client: SpeechClient<Channel>,
     operations_client: Option<OperationsClient<Channel>>,
@@ -36,6 +37,39 @@ pub struct Recognizer {
 }
 
 impl Recognizer {
+    /// Convenience function to return tonic Interceptor
+    /// (see https://docs.rs/tonic/0.4.3/tonic/struct.Interceptor.html)
+    fn new_interceptor(token_header_val: Arc<String>) -> Result<tonic::Interceptor> {
+        let interceptor = tonic::Interceptor::new(move |mut req: tonic::Request<()>| {
+            let meta_result = MetadataValue::from_str(&token_header_val);
+
+            return match meta_result {
+                Ok(meta) => {
+                    req.metadata_mut().insert("authorization", meta);
+                    Ok(req)
+                }
+                Err(some_error) => Err(tonic::Status::internal(format!(
+                    "new_interceptor: Error when getting MetadataValue from token {:?}",
+                    some_error
+                ))),
+            };
+        });
+        Ok(interceptor)
+    }
+
+    /// Creates new GRPC channel to speech.googleapis.com API
+    async fn new_grpc_channel() -> Result<Channel> {
+        let tls_config = ClientTlsConfig::new()
+            .ca_certificate(Certificate::from_pem(CERTIFICATES))
+            .domain_name("speech.googleapis.com");
+
+        Ok(Channel::from_static("https://speech.googleapis.com")
+            .tls_config(tls_config.clone())?
+            //.timeout(std::time::Duration::from_secs(2))
+            .connect()
+            .await?)
+    }
+
     /// Creates new speech recognizer from provided
     /// Google credentials and google speech configuration.
     /// This kind of recognizer can be used for streaming recognition.
@@ -43,25 +77,14 @@ impl Recognizer {
         google_credentials: impl AsRef<str>,
         config: StreamingRecognitionConfig,
     ) -> Result<Self> {
-        let tls_config = ClientTlsConfig::new()
-            .ca_certificate(Certificate::from_pem(CERTIFICATES))
-            .domain_name("speech.googleapis.com");
 
-        let channel = Channel::from_static("https://speech.googleapis.com")
-            .tls_config(tls_config.clone())?
-            //.timeout(std::time::Duration::from_secs(2))
-            .connect()
-            .await?;
+        let channel = Recognizer::new_grpc_channel().await?;
 
         let token = Builder::new().json(google_credentials).build()?;
-
         let token_header_val: Arc<String> = token.header_value()?;
+
         let speech_client: SpeechClient<Channel> =
-            SpeechClient::with_interceptor(channel, move |mut req: tonic::Request<()>| {
-                let meta = MetadataValue::from_str(&token_header_val).unwrap();
-                req.metadata_mut().insert("authorization", meta);
-                Ok(req)
-            });
+            SpeechClient::with_interceptor(channel, Recognizer::new_interceptor(token_header_val)?);
 
         let (audio_sender, audio_receiver) = mpsc::channel::<StreamingRecognizeRequest>(10240);
 
@@ -83,34 +106,20 @@ impl Recognizer {
     /// Google credentials. This kind of recognizer can be used
     /// for long running recognition.
     pub async fn new_for_long_running(google_credentials: impl AsRef<str>) -> Result<Self> {
-        let tls_config = ClientTlsConfig::new()
-            .ca_certificate(Certificate::from_pem(CERTIFICATES))
-            .domain_name("speech.googleapis.com");
-
-        let channel = Channel::from_static("https://speech.googleapis.com")
-            .tls_config(tls_config.clone())?
-            //.timeout(std::time::Duration::from_secs(2))
-            .connect()
-            .await?;
+        let channel = Recognizer::new_grpc_channel().await?;
 
         let token = Builder::new().json(google_credentials).build()?;
-
         let token_header_val: Arc<String> = token.header_value()?;
-        let token_header_val2: Arc<String> = token_header_val.clone();
 
-        let speech_client: SpeechClient<Channel> =
-            SpeechClient::with_interceptor(channel.clone(), move |mut req: tonic::Request<()>| {
-                let meta = MetadataValue::from_str(&token_header_val).unwrap();
-                req.metadata_mut().insert("authorization", meta);
-                Ok(req)
-            });
+        let speech_client: SpeechClient<Channel> = SpeechClient::with_interceptor(
+            channel.clone(),
+            Recognizer::new_interceptor(token_header_val.clone())?,
+        );
 
-        let operations_client =
-            OperationsClient::with_interceptor(channel, move |mut req: tonic::Request<()>| {
-                let meta = MetadataValue::from_str(&token_header_val2).unwrap();
-                req.metadata_mut().insert("authorization", meta);
-                Ok(req)
-            });
+        let operations_client = OperationsClient::with_interceptor(
+            channel,
+            Recognizer::new_interceptor(token_header_val)?,
+        );
 
         Ok(Recognizer {
             speech_client,
@@ -167,6 +176,10 @@ impl Recognizer {
         }
     }
 
+    /// Initiates asynchronous recognition.
+    /// Returns long running operation representing
+    /// asynchronous computation performed by Google Cloud Platform.
+    /// Use long_running_wait to wait until operation is done.
     pub async fn long_running_recognize(
         &mut self,
         request: LongRunningRecognizeRequest,
@@ -174,10 +187,17 @@ impl Recognizer {
         Ok(self.speech_client.long_running_recognize(request).await?)
     }
 
+    /// Waits for completion of long running operation returned
+    /// by long_running_recognize function. Long running operation
+    /// result is then casted into LongRunningRecognizeResponse struct.
+    /// Function checks operation status regularly using get_operation
+    /// which is called every check_interval_ms ms. If check_interval_ms
+    /// is not specified default interval check is 1 sec.
     pub async fn long_running_wait(
         &mut self,
         operation: Operation,
-    ) -> Result<Option<OperationResult>> {
+        check_interval_ms: Option<u64>,
+    ) -> Result<Option<LongRunningRecognizeResponse>> {
         let operation_req = GetOperationRequest {
             name: operation.name.clone(),
         };
@@ -188,9 +208,28 @@ impl Recognizer {
                     oper_client.get_operation(operation_req.clone()).await?;
                 let operation = tonic_response.into_inner();
                 if operation.done == true {
-                    return Ok(operation.result);
+                    return if let Some(operation_result) = operation.result {
+                        match operation_result {
+                            OperationResult::Error(rpc_status) => {
+                                error!("Recognizer.long_running_wait rpc error {:?}", rpc_status);
+                                Err(Error::new_with_code(
+                                    rpc_status.message,
+                                    rpc_status.code.to_string(),
+                                ))
+                            }
+                            OperationResult::Response(any_response) => {
+                                let lrr_response: LongRunningRecognizeResponse =
+                                    LongRunningRecognizeResponse::decode(&mut Cursor::new(
+                                        any_response.value,
+                                    ))?;
+                                Ok(Some(lrr_response))
+                            }
+                        }
+                    } else {
+                        Ok(None)
+                    };
                 } else {
-                    sleep(Duration::from_millis(1000)).await;
+                    sleep(Duration::from_millis(check_interval_ms.unwrap_or(1000))).await;
                 }
             }
         }
