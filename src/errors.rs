@@ -10,8 +10,8 @@ use tonic::Status as TStatus;
 
 #[derive(Debug)]
 pub struct Error {
-    message: String,
-    code: Option<String>,
+    pub message: String,
+    pub code: Option<String>,
 }
 
 impl Error {
