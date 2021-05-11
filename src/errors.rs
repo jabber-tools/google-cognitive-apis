@@ -1,4 +1,6 @@
-use crate::api::grpc::google::cloud::speechtotext::v1::StreamingRecognizeRequest;
+use crate::api::grpc::google::cloud::speechtotext::v1::{
+    StreamingRecognizeRequest, StreamingRecognizeResponse,
+};
 use gouth::Error as GAuthError;
 use prost::DecodeError as ProstDecodeError;
 use reqwest::{self, header::InvalidHeaderValue};
@@ -105,6 +107,15 @@ impl From<TStatus> for Error {
 
 impl From<SendError<StreamingRecognizeRequest>> for Error {
     fn from(error: SendError<StreamingRecognizeRequest>) -> Error {
+        Error {
+            message: format!("{}", error),
+            code: None,
+        }
+    }
+}
+
+impl From<SendError<StreamingRecognizeResponse>> for Error {
+    fn from(error: SendError<StreamingRecognizeResponse>) -> Error {
         Error {
             message: format!("{}", error),
             code: None,

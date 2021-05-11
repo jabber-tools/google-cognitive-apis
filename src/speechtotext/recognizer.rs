@@ -34,6 +34,9 @@ pub struct Recognizer {
     operations_client: Option<OperationsClient<Channel>>,
     audio_sender: Option<mpsc::Sender<StreamingRecognizeRequest>>,
     audio_receiver: Option<mpsc::Receiver<StreamingRecognizeRequest>>,
+    /// experimental for now. to compare traditional channels with
+    /// async streams in terms of performance. used by streaming_recognize_2
+    result_sender: Option<mpsc::Sender<StreamingRecognizeResponse>>,
 }
 
 impl Recognizer {
@@ -98,6 +101,7 @@ impl Recognizer {
             operations_client: None,
             audio_sender: Some(audio_sender),
             audio_receiver: Some(audio_receiver),
+            result_sender: None,
         })
     }
 
@@ -127,6 +131,7 @@ impl Recognizer {
             operations_client: Some(operations_client),
             audio_sender: None,
             audio_receiver: None,
+            result_sender: None,
         })
     }
 
@@ -151,6 +156,7 @@ impl Recognizer {
             operations_client: None,
             audio_sender: None,
             audio_receiver: None,
+            result_sender: None,
         })
     }
 
@@ -161,6 +167,14 @@ impl Recognizer {
         } else {
             None
         };
+    }
+
+    /// Returns receiver that can be used to receive speech-to-text results
+    /// used with streaming_recognize_2 function
+    pub fn get_streaming_result_receiver(&mut self) -> mpsc::Receiver<StreamingRecognizeResponse> {
+        let (result_sender, result_receiver) = mpsc::channel::<StreamingRecognizeResponse>(10240);
+        self.result_sender = Some(result_sender);
+        result_receiver
     }
 
     /// Convenience function so that client does not have to create full StreamingRecognizeRequest
@@ -199,6 +213,33 @@ impl Recognizer {
                     trace!("streaming_recognize: leaving loop");
                 }
         }
+    }
+
+    /// to compare async streams with channels in terms of performance
+    pub async fn streaming_recognize_2(&mut self) -> Result<()> {
+        // yank self.audio_receiver so that we can consume it
+        if let Some(audio_receiver) = self.audio_receiver.take() {
+            let streaming_recognize_result: StdResult<
+                tonic::Response<Streaming<StreamingRecognizeResponse>>,
+                tonic::Status,
+            > = self
+                .speech_client
+                .streaming_recognize(ReceiverStream::new(audio_receiver))
+                .await;
+
+            let mut response_stream: Streaming<StreamingRecognizeResponse> =
+                streaming_recognize_result?.into_inner();
+
+            loop {
+                if let Some(streaming_recognize_response) = response_stream.message().await? {
+                    if let Some(result_sender) = &self.result_sender {
+                        result_sender.send(streaming_recognize_response).await?;
+                    }
+                }
+            }
+        }
+
+        Ok(())
     }
 
     /// Initiates asynchronous recognition.
