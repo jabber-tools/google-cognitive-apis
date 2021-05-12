@@ -39,7 +39,7 @@ async fn main() {
         interim_results: true,
     };
 
-    let mut recognizer = Recognizer::create_streaming_recognizer(credentials, streaming_config)
+    let mut recognizer = Recognizer::create_streaming_recognizer(credentials, streaming_config, None)
         .await
         .unwrap();
 

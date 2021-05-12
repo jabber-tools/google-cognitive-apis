@@ -79,6 +79,7 @@ impl Recognizer {
     pub async fn create_streaming_recognizer(
         google_credentials: impl AsRef<str>,
         config: StreamingRecognitionConfig,
+        buffer_size: Option<usize>,
     ) -> Result<Self> {
         let channel = Recognizer::new_grpc_channel().await?;
 
@@ -88,7 +89,8 @@ impl Recognizer {
         let speech_client: SpeechClient<Channel> =
             SpeechClient::with_interceptor(channel, Recognizer::new_interceptor(token_header_val)?);
 
-        let (audio_sender, audio_receiver) = mpsc::channel::<StreamingRecognizeRequest>(10240);
+        let (audio_sender, audio_receiver) =
+            mpsc::channel::<StreamingRecognizeRequest>(buffer_size.unwrap_or(10240));
 
         let streaming_config = StreamingRecognizeRequest {
             streaming_request: Some(StreamingRequest::StreamingConfig(config)),
@@ -171,8 +173,12 @@ impl Recognizer {
 
     /// Returns receiver that can be used to receive speech-to-text results
     /// used with streaming_recognize_2 function
-    pub fn get_streaming_result_receiver(&mut self) -> mpsc::Receiver<StreamingRecognizeResponse> {
-        let (result_sender, result_receiver) = mpsc::channel::<StreamingRecognizeResponse>(10240);
+    pub fn get_streaming_result_receiver(
+        &mut self,
+        buffer_size: Option<usize>,
+    ) -> mpsc::Receiver<StreamingRecognizeResponse> {
+        let (result_sender, result_receiver) =
+            mpsc::channel::<StreamingRecognizeResponse>(buffer_size.unwrap_or(10240));
         self.result_sender = Some(result_sender);
         result_receiver
     }

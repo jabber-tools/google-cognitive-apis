@@ -36,13 +36,13 @@ async fn main() {
         interim_results: true,
     };
 
-    let mut recognizer = Recognizer::create_streaming_recognizer(credentials, streaming_config)
+    let mut recognizer = Recognizer::create_streaming_recognizer(credentials, streaming_config, None)
         .await
         .unwrap();
 
     let audio_sender = recognizer.get_audio_sink().unwrap();
 
-    let mut result_receiver = recognizer.get_streaming_result_receiver();
+    let mut result_receiver = recognizer.get_streaming_result_receiver(None);
 
     tokio::spawn(async move {
         let recognition_result = recognizer.streaming_recognize_2().await;
