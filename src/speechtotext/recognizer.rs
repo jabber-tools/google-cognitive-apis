@@ -22,6 +22,7 @@ use tokio::sync::mpsc;
 use tokio::time::sleep;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::Response as TonicResponse;
+use tonic::Status as TonicStatus;
 use tonic::{transport::Channel, Response as GrpcResponse, Streaming};
 
 /// Google Speech API recognizer
@@ -193,8 +194,8 @@ impl Recognizer {
                 // yank self.audio_receiver so that we can consume it
                 if let Some(audio_receiver) = self.audio_receiver.take() {
                     let streaming_recognize_result: StdResult<
-                        tonic::Response<Streaming<StreamingRecognizeResponse>>,
-                        tonic::Status,
+                        TonicResponse<Streaming<StreamingRecognizeResponse>>,
+                        TonicStatus,
                     > = self.speech_client.streaming_recognize(ReceiverStream::new(audio_receiver)).await;
 
                     let mut response_stream: Streaming<StreamingRecognizeResponse> =

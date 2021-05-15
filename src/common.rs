@@ -1,4 +1,3 @@
-use crate::api::grpc::google::cloud::dialogflow::v2beta1::sessions_client::SessionsClient;
 use crate::errors::Result;
 use crate::CERTIFICATES;
 use std::sync::Arc;
