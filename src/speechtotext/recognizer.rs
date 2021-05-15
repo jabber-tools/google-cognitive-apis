@@ -30,12 +30,21 @@ use tonic::{
 
 /// Google Speech API recognizer
 pub struct Recognizer {
+    /// internal GRPC speech client
     speech_client: SpeechClient<Channel>,
+
+    /// internal GRPC google long running operations client
     operations_client: Option<OperationsClient<Channel>>,
+
+    /// channel for sending audio data
     audio_sender: Option<mpsc::Sender<StreamingRecognizeRequest>>,
+
+    /// channel for streaming audio data into GRPC API
     audio_receiver: Option<mpsc::Receiver<StreamingRecognizeRequest>>,
-    /// experimental for now. to compare traditional channels with
-    /// async streams in terms of performance. used by streaming_recognize_2
+
+    /// For channel based streaming this is the internal channel sender
+    /// where STT results will be sent. Library client is using respective
+    /// receiver to get the results. See example recognizer_streaming2 for details
     result_sender: Option<mpsc::Sender<StreamingRecognizeResponse>>,
 }
 
@@ -172,7 +181,7 @@ impl Recognizer {
     }
 
     /// Returns receiver that can be used to receive speech-to-text results
-    /// used with streaming_recognize_2 function
+    /// used with streaming_recognize_2 function.
     pub fn get_streaming_result_receiver(
         &mut self,
         buffer_size: Option<usize>,
@@ -191,7 +200,7 @@ impl Recognizer {
         }
     }
 
-    /// Initiates bidirectional streaming. returns
+    /// Initiates bidirectional streaming. Returns
     /// asynchronous stream of streaming recognition results
     /// Audio data must be fed into recognizer via channel sender
     /// returned by function get_audio_sink.
@@ -221,7 +230,9 @@ impl Recognizer {
         }
     }
 
-    /// to compare async streams with channels in terms of performance
+    /// Initiates bidirectional streaming. This call should be spawned
+    /// into separate tokio task. Results can be then retrieved via
+    /// channel receiver returned by method get_streaming_result_receiver.
     pub async fn streaming_recognize_2(&mut self) -> Result<()> {
         // yank self.audio_receiver so that we can consume it
         if let Some(audio_receiver) = self.audio_receiver.take() {
@@ -307,7 +318,7 @@ impl Recognizer {
         }
     }
 
-    /// Performs synchronous speech recognition
+    /// Performs synchronous speech recognition.
     pub async fn recognize(&mut self, request: RecognizeRequest) -> Result<RecognizeResponse> {
         let tonic_response: TonicResponse<RecognizeResponse> =
             self.speech_client.recognize(request).await?;
