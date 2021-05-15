@@ -12,4 +12,3 @@ pub struct TTSResponse {
     /// synthetized audio data
     pub audio_base64: String,
 }
-

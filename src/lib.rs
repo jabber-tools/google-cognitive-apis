@@ -5,3 +5,4 @@ pub mod common;
 pub mod dialogflow;
 pub mod errors;
 pub mod speechtotext;
+pub mod texttospeech;
