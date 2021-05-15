@@ -36,9 +36,10 @@ async fn main() {
         interim_results: true,
     };
 
-    let mut recognizer = Recognizer::create_streaming_recognizer(credentials, streaming_config, None)
-        .await
-        .unwrap();
+    let mut recognizer =
+        Recognizer::create_streaming_recognizer(credentials, streaming_config, None)
+            .await
+            .unwrap();
 
     let audio_sender = recognizer.get_audio_sink().unwrap();
 

@@ -7,8 +7,8 @@ use crate::api::grpc::google::longrunning::{
     operation::Result as OperationResult, operations_client::OperationsClient, GetOperationRequest,
     Operation,
 };
+use crate::common::{new_grpc_channel, new_interceptor};
 use crate::errors::{Error, Result};
-use crate::CERTIFICATES;
 use async_stream::try_stream;
 use futures_core::stream::Stream;
 use gouth::Builder;
@@ -22,11 +22,7 @@ use tokio::sync::mpsc;
 use tokio::time::sleep;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::Response as TonicResponse;
-use tonic::{
-    metadata::MetadataValue,
-    transport::{Certificate, Channel, ClientTlsConfig},
-    Response as GrpcResponse, Streaming,
-};
+use tonic::{transport::Channel, Response as GrpcResponse, Streaming};
 
 /// Google Speech API recognizer
 pub struct Recognizer {
@@ -49,57 +45,33 @@ pub struct Recognizer {
 }
 
 impl Recognizer {
-    /// Convenience function to return tonic Interceptor
-    /// (see https://docs.rs/tonic/0.4.3/tonic/struct.Interceptor.html)
-    fn new_interceptor(token_header_val: Arc<String>) -> Result<tonic::Interceptor> {
-        let interceptor = tonic::Interceptor::new(move |mut req: tonic::Request<()>| {
-            let meta_result = MetadataValue::from_str(&token_header_val);
-
-            return match meta_result {
-                Ok(meta) => {
-                    req.metadata_mut().insert("authorization", meta);
-                    Ok(req)
-                }
-                Err(some_error) => Err(tonic::Status::internal(format!(
-                    "new_interceptor: Error when getting MetadataValue from token {:?}",
-                    some_error
-                ))),
-            };
-        });
-        Ok(interceptor)
-    }
-
-    /// Creates new GRPC channel to speech.googleapis.com API
-    async fn new_grpc_channel() -> Result<Channel> {
-        let tls_config = ClientTlsConfig::new()
-            .ca_certificate(Certificate::from_pem(CERTIFICATES))
-            .domain_name("speech.googleapis.com");
-
-        Ok(Channel::from_static("https://speech.googleapis.com")
-            .tls_config(tls_config.clone())?
-            //.timeout(std::time::Duration::from_secs(2))
-            .connect()
-            .await?)
-    }
-
     /// Creates new speech recognizer from provided
     /// Google credentials and google speech configuration.
     /// This kind of recognizer can be used for streaming recognition.
     pub async fn create_streaming_recognizer(
+        // Google Cloud Platform JSON credentials for project with Speech APIs enabled
         google_credentials: impl AsRef<str>,
+        //  Streaming recognition configuration
         config: StreamingRecognitionConfig,
+        // Capacity of audio sink (tokio channel used by caller to send audio data).
+        // If not provided defaults to 1000.
         buffer_size: Option<usize>,
     ) -> Result<Self> {
-        let channel = Recognizer::new_grpc_channel().await?;
+        let channel = new_grpc_channel(
+            "speech.googleapis.com",
+            "https://speech.googleapis.com",
+            None,
+        )
+        .await?;
 
         let token = Builder::new().json(google_credentials).build()?;
         let token_header_val: Arc<String> = token.header_value()?;
 
         let speech_client: SpeechClient<Channel> =
-            SpeechClient::with_interceptor(channel, Recognizer::new_interceptor(token_header_val)?);
+            SpeechClient::with_interceptor(channel, new_interceptor(token_header_val)?);
 
         let (audio_sender, audio_receiver) =
-            mpsc::channel::<StreamingRecognizeRequest>(buffer_size.unwrap_or(10240));
+            mpsc::channel::<StreamingRecognizeRequest>(buffer_size.unwrap_or(1000));
 
         let streaming_config = StreamingRecognizeRequest {
             streaming_request: Some(StreamingRequest::StreamingConfig(config)),
@@ -122,20 +94,23 @@ impl Recognizer {
     pub async fn create_asynchronous_recognizer(
         google_credentials: impl AsRef<str>,
     ) -> Result<Self> {
-        let channel = Recognizer::new_grpc_channel().await?;
+        let channel = new_grpc_channel(
+            "speech.googleapis.com",
+            "https://speech.googleapis.com",
+            None,
+        )
+        .await?;
 
         let token = Builder::new().json(google_credentials).build()?;
         let token_header_val: Arc<String> = token.header_value()?;
 
         let speech_client: SpeechClient<Channel> = SpeechClient::with_interceptor(
             channel.clone(),
-            Recognizer::new_interceptor(token_header_val.clone())?,
+            new_interceptor(token_header_val.clone())?,
         );
 
-        let operations_client = OperationsClient::with_interceptor(
-            channel,
-            Recognizer::new_interceptor(token_header_val)?,
-        );
+        let operations_client =
+            OperationsClient::with_interceptor(channel, new_interceptor(token_header_val)?);
 
         Ok(Recognizer {
             speech_client,
@@ -152,14 +127,19 @@ impl Recognizer {
     pub async fn create_synchronous_recognizer(
         google_credentials: impl AsRef<str>,
     ) -> Result<Self> {
-        let channel = Recognizer::new_grpc_channel().await?;
+        let channel = new_grpc_channel(
+            "speech.googleapis.com",
+            "https://speech.googleapis.com",
+            None,
+        )
+        .await?;
 
         let token = Builder::new().json(google_credentials).build()?;
         let token_header_val: Arc<String> = token.header_value()?;
 
         let speech_client: SpeechClient<Channel> = SpeechClient::with_interceptor(
             channel.clone(),
-            Recognizer::new_interceptor(token_header_val.clone())?,
+            new_interceptor(token_header_val.clone())?,
         );
 
         Ok(Recognizer {
@@ -184,10 +164,11 @@ impl Recognizer {
     /// used with streaming_recognize_2 function.
     pub fn get_streaming_result_receiver(
         &mut self,
+        // buffer size for tokio channel. If not provided defaults to 1000.
         buffer_size: Option<usize>,
     ) -> mpsc::Receiver<StreamingRecognizeResponse> {
         let (result_sender, result_receiver) =
-            mpsc::channel::<StreamingRecognizeResponse>(buffer_size.unwrap_or(10240));
+            mpsc::channel::<StreamingRecognizeResponse>(buffer_size.unwrap_or(1000));
         self.result_sender = Some(result_sender);
         result_receiver
     }
