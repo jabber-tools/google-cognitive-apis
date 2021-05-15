@@ -360,7 +360,7 @@ mod tests {
     #[allow(unused_imports)]
     use super::*;
 
-    // cargo test --package googleapis-rs --features google-cloud-speechtotext-v1  -- --show-output test_deserialize_recognition_config
+    // cargo test -- --show-output test_deserialize_recognition_config
     #[test]
     fn test_deserialize_recognition_config() {
         let json_str = r#"
@@ -391,7 +391,7 @@ mod tests {
         }
     }
 
-    // cargo test --package googleapis-rs --features google-cloud-speechtotext-v1  -- --show-output test_2_deserialize_recognition_config
+    // cargo test -- --show-output test_2_deserialize_recognition_config
     #[test]
     fn test_2_deserialize_recognition_config() {
         let json_str = r#"
@@ -424,8 +424,7 @@ mod tests {
         }
     }
 
-    // mst be run from googleapis-rs folder, --features flag will be not accepted by cargo in virtual workspace root :(
-    // cargo test --package googleapis-rs --features google-cloud-speechtotext-v1 -- --show-output test_convert_to_grpc
+    // cargo test -- --show-output test_convert_to_grpc
     #[test]
     fn test_convert_to_grpc() {
         let json_str = r#"
