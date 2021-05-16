@@ -8,6 +8,8 @@ Selected Google Cloud APIs exposed via GRPC and REST:
 * Speech-to-text
 * Text-to-speech
 
+This version is based on Tokio 0.2 library and will be not extended significantly. All the goodies will go into version based on Tokio 1.0. 
+
 ## Google API proto definitions
 Google proto definitions have been taken from [this](https://github.com/googleapis/googleapis) repo.
 
@@ -31,8 +33,4 @@ cargo run --example recognizer_async
 
 ```rust
 cargo run --example recognizer_streaming
-```
-
-```rust
-cargo run --example recognizer_streaming_async_stream
 ```

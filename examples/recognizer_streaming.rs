@@ -41,7 +41,7 @@ async fn main() {
             .await
             .unwrap();
 
-    let audio_sender = recognizer.get_audio_sink().unwrap();
+    let mut audio_sender = recognizer.get_audio_sink().unwrap();
 
     let mut result_receiver = recognizer.get_streaming_result_receiver(None);
 

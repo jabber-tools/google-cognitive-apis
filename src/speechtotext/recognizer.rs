@@ -9,8 +9,6 @@ use crate::api::grpc::google::longrunning::{
 };
 use crate::common::{new_grpc_channel, new_interceptor};
 use crate::errors::{Error, Result};
-use async_stream::try_stream;
-use futures_core::stream::Stream;
 use gouth::Builder;
 use log::*;
 use prost::Message;
@@ -19,10 +17,8 @@ use std::result::Result as StdResult;
 use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::mpsc;
-use tokio::time::sleep;
-use tokio_stream::wrappers::ReceiverStream;
+use tokio::time::delay_for as sleep;
 use tonic::Response as TonicResponse;
-use tonic::Status as TonicStatus;
 use tonic::{transport::Channel, Response as GrpcResponse, Streaming};
 
 /// Google Speech API recognizer
@@ -71,7 +67,7 @@ impl Recognizer {
         let speech_client: SpeechClient<Channel> =
             SpeechClient::with_interceptor(channel, new_interceptor(token_header_val)?);
 
-        let (audio_sender, audio_receiver) =
+        let (mut audio_sender, audio_receiver) =
             mpsc::channel::<StreamingRecognizeRequest>(buffer_size.unwrap_or(1000));
 
         let streaming_config = StreamingRecognizeRequest {
@@ -182,36 +178,6 @@ impl Recognizer {
         }
     }
 
-    /// Initiates bidirectional streaming. Returns
-    /// asynchronous stream of streaming recognition results
-    /// Audio data must be fed into recognizer via channel sender
-    /// returned by function get_audio_sink.
-    #[allow(unreachable_code)]
-    pub async fn streaming_recognize_async_stream(
-        &mut self,
-    ) -> impl Stream<Item = Result<StreamingRecognizeResponse>> + '_ {
-        try_stream! {
-                // yank self.audio_receiver so that we can consume it
-                if let Some(audio_receiver) = self.audio_receiver.take() {
-                    let streaming_recognize_result: StdResult<
-                        TonicResponse<Streaming<StreamingRecognizeResponse>>,
-                        TonicStatus,
-                    > = self.speech_client.streaming_recognize(ReceiverStream::new(audio_receiver)).await;
-
-                    let mut response_stream: Streaming<StreamingRecognizeResponse> =
-                        streaming_recognize_result?.into_inner();
-
-                    trace!("streaming_recognize: entering loop");
-                    loop {
-                        if let Some(streaming_recognize_response) = response_stream.message().await? {
-                            yield streaming_recognize_response;
-                        }
-                    }
-                    trace!("streaming_recognize: leaving loop");
-                }
-        }
-    }
-
     /// Initiates bidirectional streaming. This call should be spawned
     /// into separate tokio task. Results can be then retrieved via
     /// channel receiver returned by method get_streaming_result_receiver.
@@ -221,17 +187,14 @@ impl Recognizer {
             let streaming_recognize_result: StdResult<
                 tonic::Response<Streaming<StreamingRecognizeResponse>>,
                 tonic::Status,
-            > = self
-                .speech_client
-                .streaming_recognize(ReceiverStream::new(audio_receiver))
-                .await;
+            > = self.speech_client.streaming_recognize(audio_receiver).await;
 
             let mut response_stream: Streaming<StreamingRecognizeResponse> =
                 streaming_recognize_result?.into_inner();
 
             loop {
                 if let Some(streaming_recognize_response) = response_stream.message().await? {
-                    if let Some(result_sender) = &self.result_sender {
+                    if let Some(result_sender) = &mut self.result_sender {
                         result_sender.send(streaming_recognize_response).await?;
                     }
                 }
