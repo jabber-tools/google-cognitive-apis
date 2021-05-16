@@ -7,7 +7,6 @@ use crate::errors::{Error, Result};
 /// https://cloud.google.com/speech-to-text/docs/reference/rest/v1/RecognitionConfig
 ///
 use serde::{Deserialize, Serialize};
-use serde_path_to_error;
 use std::convert::Into;
 use std::fmt;
 
@@ -192,9 +191,9 @@ impl Into<GrpcRecognitionMetadata> for RecognitionMetadata {
                 RecordingDeviceType::OTHER_OUTDOOR_DEVICE => 5,
                 RecordingDeviceType::OTHER_INDOOR_DEVICE => 6,
             },
-            recording_device_name: self.audio_topic.to_owned(),
-            original_mime_type: self.audio_topic.to_owned(),
-            audio_topic: self.audio_topic.to_owned(),
+            recording_device_name: self.recording_device_name,
+            original_mime_type: self.original_mime_type,
+            audio_topic: self.audio_topic,
         }
     }
 }

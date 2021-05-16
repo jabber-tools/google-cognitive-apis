@@ -25,6 +25,9 @@ use tonic::Response as TonicResponse;
 use tonic::Status as TonicStatus;
 use tonic::{transport::Channel, Response as GrpcResponse, Streaming};
 
+const GRPC_API_DOMAIN: &str = "speech.googleapis.com";
+const GRPC_API_URL: &str = "https://speech.googleapis.com";
+
 /// Google Speech API recognizer
 pub struct Recognizer {
     /// internal GRPC speech client
@@ -58,12 +61,7 @@ impl Recognizer {
         // If not provided defaults to 1000.
         buffer_size: Option<usize>,
     ) -> Result<Self> {
-        let channel = new_grpc_channel(
-            "speech.googleapis.com",
-            "https://speech.googleapis.com",
-            None,
-        )
-        .await?;
+        let channel = new_grpc_channel(GRPC_API_DOMAIN, GRPC_API_URL, None).await?;
 
         let token = Builder::new().json(google_credentials).build()?;
         let token_header_val: Arc<String> = token.header_value()?;
@@ -95,12 +93,7 @@ impl Recognizer {
     pub async fn create_asynchronous_recognizer(
         google_credentials: impl AsRef<str>,
     ) -> Result<Self> {
-        let channel = new_grpc_channel(
-            "speech.googleapis.com",
-            "https://speech.googleapis.com",
-            None,
-        )
-        .await?;
+        let channel = new_grpc_channel(GRPC_API_DOMAIN, GRPC_API_URL, None).await?;
 
         let token = Builder::new().json(google_credentials).build()?;
         let token_header_val: Arc<String> = token.header_value()?;
@@ -128,20 +121,13 @@ impl Recognizer {
     pub async fn create_synchronous_recognizer(
         google_credentials: impl AsRef<str>,
     ) -> Result<Self> {
-        let channel = new_grpc_channel(
-            "speech.googleapis.com",
-            "https://speech.googleapis.com",
-            None,
-        )
-        .await?;
+        let channel = new_grpc_channel(GRPC_API_DOMAIN, GRPC_API_URL, None).await?;
 
         let token = Builder::new().json(google_credentials).build()?;
         let token_header_val: Arc<String> = token.header_value()?;
 
-        let speech_client: SpeechClient<Channel> = SpeechClient::with_interceptor(
-            channel.clone(),
-            new_interceptor(token_header_val.clone())?,
-        );
+        let speech_client: SpeechClient<Channel> =
+            SpeechClient::with_interceptor(channel, new_interceptor(token_header_val)?);
 
         Ok(Recognizer {
             speech_client,
@@ -154,11 +140,11 @@ impl Recognizer {
 
     /// Returns sender than can be used to stream in audio bytes.
     pub fn get_audio_sink(&mut self) -> Option<mpsc::Sender<StreamingRecognizeRequest>> {
-        return if let Some(audio_sender) = &self.audio_sender {
+        if let Some(audio_sender) = &self.audio_sender {
             Some(audio_sender.clone())
         } else {
             None
-        };
+        }
     }
 
     /// Returns receiver that can be used to receive speech-to-text results
@@ -272,7 +258,7 @@ impl Recognizer {
                 let tonic_response: TonicResponse<Operation> =
                     oper_client.get_operation(operation_req.clone()).await?;
                 let operation = tonic_response.into_inner();
-                if operation.done == true {
+                if operation.done {
                     return if let Some(operation_result) = operation.result {
                         match operation_result {
                             OperationResult::Error(rpc_status) => {

@@ -8,6 +8,7 @@ use tonic::{
 
 /// Convenience function to return tonic Interceptor
 /// (see https://docs.rs/tonic/0.4.3/tonic/struct.Interceptor.html)
+#[allow(clippy::rc_buffer)]
 pub fn new_interceptor(token_header_val: Arc<String>) -> Result<tonic::Interceptor> {
     let interceptor = tonic::Interceptor::new(move |mut req: tonic::Request<()>| {
         let meta_result = MetadataValue::from_str(&token_header_val);

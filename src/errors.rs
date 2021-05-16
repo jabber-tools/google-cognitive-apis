@@ -3,7 +3,6 @@ use crate::api::grpc::google::cloud::speechtotext::v1::{
 };
 use gouth::Error as GAuthError;
 use prost::DecodeError as ProstDecodeError;
-use reqwest::{self, header::InvalidHeaderValue};
 use std::result;
 use tokio::sync::mpsc::error::SendError;
 use tonic::metadata::errors::InvalidMetadataValue;
@@ -44,33 +43,6 @@ impl From<serde_json::error::Error> for Error {
 
 impl From<std::io::Error> for Error {
     fn from(error: std::io::Error) -> Error {
-        Error {
-            message: format!("{}", error),
-            code: None,
-        }
-    }
-}
-
-impl From<jsonwebtoken::errors::Error> for Error {
-    fn from(error: jsonwebtoken::errors::Error) -> Error {
-        Error {
-            message: format!("{}", error),
-            code: None,
-        }
-    }
-}
-
-impl From<InvalidHeaderValue> for Error {
-    fn from(error: InvalidHeaderValue) -> Error {
-        Error {
-            message: format!("{}", error),
-            code: None,
-        }
-    }
-}
-
-impl From<reqwest::Error> for Error {
-    fn from(error: reqwest::Error) -> Error {
         Error {
             message: format!("{}", error),
             code: None,
