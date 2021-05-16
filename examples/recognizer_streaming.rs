@@ -1,10 +1,7 @@
-use futures_util::pin_mut;
-use futures_util::stream::StreamExt;
-use google_cognitive_apis::speechtotext::recognizer::Recognizer;
-
 use google_cognitive_apis::api::grpc::google::cloud::speechtotext::v1::{
     recognition_config::AudioEncoding, RecognitionConfig, StreamingRecognitionConfig,
 };
+use google_cognitive_apis::speechtotext::recognizer::Recognizer;
 
 use log::*;
 use std::env;
@@ -46,8 +43,16 @@ async fn main() {
 
     let audio_sender = recognizer.get_audio_sink().unwrap();
 
-    let stream = recognizer.streaming_recognize().await;
-    pin_mut!(stream); // needed for iteration
+    let mut result_receiver = recognizer.get_streaming_result_receiver(None);
+
+    tokio::spawn(async move {
+        let recognition_result = recognizer.streaming_recognize().await;
+
+        match recognition_result {
+            Err(err) => error!("streaming_recognize_2 error {:?}", err),
+            Ok(_) => info!("streaming_recognize_2 ok!"),
+        }
+    });
 
     tokio::spawn(async move {
         let mut file = File::open("/tmp/hello_rust_8.wav").unwrap();
@@ -74,7 +79,7 @@ async fn main() {
         }
     });
 
-    while let Some(val) = stream.next().await {
-        info!("recognition result {:?}", val);
+    while let Some(reco_result) = result_receiver.recv().await {
+        info!("recognition result {:?}", reco_result);
     }
 }

@@ -41,7 +41,7 @@ pub struct Recognizer {
 
     /// For channel based streaming this is the internal channel sender
     /// where STT results will be sent. Library client is using respective
-    /// receiver to get the results. See example recognizer_streaming2 for details
+    /// receiver to get the results. See example recognizer_streaming for details
     result_sender: Option<mpsc::Sender<StreamingRecognizeResponse>>,
 }
 
@@ -187,7 +187,7 @@ impl Recognizer {
     /// Audio data must be fed into recognizer via channel sender
     /// returned by function get_audio_sink.
     #[allow(unreachable_code)]
-    pub async fn streaming_recognize(
+    pub async fn streaming_recognize_async_stream(
         &mut self,
     ) -> impl Stream<Item = Result<StreamingRecognizeResponse>> + '_ {
         try_stream! {
@@ -215,7 +215,7 @@ impl Recognizer {
     /// Initiates bidirectional streaming. This call should be spawned
     /// into separate tokio task. Results can be then retrieved via
     /// channel receiver returned by method get_streaming_result_receiver.
-    pub async fn streaming_recognize_2(&mut self) -> Result<()> {
+    pub async fn streaming_recognize(&mut self) -> Result<()> {
         // yank self.audio_receiver so that we can consume it
         if let Some(audio_receiver) = self.audio_receiver.take() {
             let streaming_recognize_result: StdResult<

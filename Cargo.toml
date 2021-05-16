@@ -7,7 +7,6 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tokio = {version = "1.5.0", features = ["full"]}
 prost = "0.7.0"
 prost-types = "0.7.0"
 tonic = { version = "0.4.2", features = ["transport", "tls"] }
@@ -18,28 +17,24 @@ reqwest = { version = "0.11.3", features = ["json"] }
 serde_path_to_error = "0.1.4"
 log = "0.4.14"
 gouth = "0.2.1"
-tokio-stream = "0.1.5"
-async-stream = "0.3.1"
-futures-core = "0.3.14"
-futures-util = "0.3.14"
+tokio = { version = "1.5.0", features = ["rt-multi-thread"] }
+tokio-stream = { version = "0.1.5" }
+async-stream = { version = "0.3.1" }
+futures-core = { version = "0.3.14" }
+
 
 [build-dependencies]
 tonic-build = "0.4.2"
 
 [dev-dependencies]
 env_logger = "0.8.3"
-
+futures-util = "0.3.14"
 
 [features]
 default = [
-    "google-cloud-texttospeech-v1",
-    "google-cloud-texttospeech-v1beta1",
-    "google-cloud-speechtotext-v1",
-    "google-cloud-speechtotext-v1p1beta1",
-    "google-cloud-dialogflow-v2",
-    "google-cloud-dialogflow-v2beta1",
-    "google-cloud-dialogflow-cx-v3",
-    "google-cloud-dialogflow-cx-v3beta1"
+    "speech-to-text",
+    "text-to-speech",
+    "dialogflow",
 ]
 
 google-cloud-texttospeech-v1 = []
@@ -52,3 +47,20 @@ google-cloud-dialogflow-v2 = []
 google-cloud-dialogflow-v2beta1 = []
 google-cloud-dialogflow-cx-v3 = []
 google-cloud-dialogflow-cx-v3beta1 = []
+
+speech-to-text = [
+    "google-cloud-speechtotext-v1",
+    "google-cloud-speechtotext-v1p1beta1",
+]
+
+text-to-speech = [
+    "google-cloud-texttospeech-v1",
+    "google-cloud-texttospeech-v1beta1",
+]
+
+dialogflow = [
+    "google-cloud-dialogflow-v2",
+    "google-cloud-dialogflow-v2beta1",
+    "google-cloud-dialogflow-cx-v3",
+    "google-cloud-dialogflow-cx-v3beta1",
+]

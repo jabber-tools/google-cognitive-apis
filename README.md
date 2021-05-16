@@ -32,3 +32,7 @@ cargo run --example recognizer_async
 ```rust
 cargo run --example recognizer_streaming
 ```
+
+```rust
+cargo run --example recognizer_streaming_async_stream
+```
