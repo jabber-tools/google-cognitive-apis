@@ -22,6 +22,7 @@ use tonic::Response as TonicResponse;
 use tonic::{transport::Channel, Response as GrpcResponse, Streaming};
 
 /// Google Speech API recognizer
+#[derive(Debug)]
 pub struct Recognizer {
     /// internal GRPC speech client
     speech_client: SpeechClient<Channel>,

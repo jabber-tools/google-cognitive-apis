@@ -10,6 +10,7 @@ use tonic::transport::Channel;
 use tonic::Response as TonicResponse;
 
 /// Google Dialogflow sessions client.
+#[derive(Debug, Clone)]
 pub struct SessionsClient {
     sessions_client: GrpcSessionsClient<Channel>,
 }
@@ -51,10 +52,10 @@ impl SessionsClient {
 
     /// Convenience function to check if DetectIntentResponse
     /// represents end of conversation. If so, returns true, otherwise false.
-    pub fn is_eoc(response: DetectIntentResponse) -> bool {
-        return if let Some(query_result) = response.query_result {
+    pub fn is_eoc(response: &DetectIntentResponse) -> bool {
+        return if let Some(query_result) = &response.query_result {
             let mut eoc = false;
-            if let Some(diagnostic_info) = query_result.diagnostic_info {
+            if let Some(diagnostic_info) = &query_result.diagnostic_info {
                 if let Some(end_conversation) = diagnostic_info.fields.get("end_conversation") {
                     eoc = match end_conversation.kind {
                         Some(prost_types::value::Kind::BoolValue(val)) => val,

@@ -9,6 +9,7 @@ use tonic::transport::Channel;
 use tonic::Response as TonicResponse;
 
 /// Google speech synthesizer
+#[derive(Debug, Clone)]
 pub struct Synthesizer {
     text_to_speech_client: TextToSpeechClient<Channel>,
 }
