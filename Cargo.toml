@@ -1,6 +1,6 @@
 [package]
 name = "google-cognitive-apis"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["abezecny"]
 edition = "2018"
 
