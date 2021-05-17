@@ -29,6 +29,7 @@ const GRPC_API_DOMAIN: &str = "speech.googleapis.com";
 const GRPC_API_URL: &str = "https://speech.googleapis.com";
 
 /// Google Speech API recognizer
+#[derive(Debug)]
 pub struct Recognizer {
     /// internal GRPC speech client
     speech_client: SpeechClient<Channel>,
