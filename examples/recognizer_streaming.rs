@@ -49,8 +49,8 @@ async fn main() {
         let recognition_result = recognizer.streaming_recognize().await;
 
         match recognition_result {
-            Err(err) => error!("streaming_recognize_2 error {:?}", err),
-            Ok(_) => info!("streaming_recognize_2 ok!"),
+            Err(err) => error!("streaming_recognize error {:?}", err),
+            Ok(_) => info!("streaming_recognize ok!"),
         }
     });
 
