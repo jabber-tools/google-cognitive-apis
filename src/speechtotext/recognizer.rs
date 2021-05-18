@@ -7,16 +7,14 @@ use crate::api::grpc::google::longrunning::{
     operation::Result as OperationResult, operations_client::OperationsClient, GetOperationRequest,
     Operation,
 };
-use crate::common::{new_grpc_channel, new_interceptor};
+use crate::common::{get_token, new_grpc_channel, new_interceptor};
 use crate::errors::{Error, Result};
 use async_stream::try_stream;
 use futures_core::stream::Stream;
-use gouth::Builder;
 use log::*;
 use prost::Message;
 use std::io::Cursor;
 use std::result::Result as StdResult;
-use std::sync::Arc;
 use std::time::Duration;
 use tokio::sync::mpsc;
 use tokio::time::sleep;
@@ -64,8 +62,7 @@ impl Recognizer {
     ) -> Result<Self> {
         let channel = new_grpc_channel(GRPC_API_DOMAIN, GRPC_API_URL, None).await?;
 
-        let token = Builder::new().json(google_credentials).build()?;
-        let token_header_val: Arc<String> = token.header_value()?;
+        let token_header_val = get_token(google_credentials)?;
 
         let speech_client: SpeechClient<Channel> =
             SpeechClient::with_interceptor(channel, new_interceptor(token_header_val)?);
@@ -96,8 +93,7 @@ impl Recognizer {
     ) -> Result<Self> {
         let channel = new_grpc_channel(GRPC_API_DOMAIN, GRPC_API_URL, None).await?;
 
-        let token = Builder::new().json(google_credentials).build()?;
-        let token_header_val: Arc<String> = token.header_value()?;
+        let token_header_val = get_token(google_credentials)?;
 
         let speech_client: SpeechClient<Channel> = SpeechClient::with_interceptor(
             channel.clone(),
@@ -124,8 +120,7 @@ impl Recognizer {
     ) -> Result<Self> {
         let channel = new_grpc_channel(GRPC_API_DOMAIN, GRPC_API_URL, None).await?;
 
-        let token = Builder::new().json(google_credentials).build()?;
-        let token_header_val: Arc<String> = token.header_value()?;
+        let token_header_val = get_token(google_credentials)?;
 
         let speech_client: SpeechClient<Channel> =
             SpeechClient::with_interceptor(channel, new_interceptor(token_header_val)?);

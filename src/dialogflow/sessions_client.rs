@@ -2,14 +2,12 @@ use crate::api::grpc::google::cloud::dialogflow::v2beta1::{
     sessions_client::SessionsClient as GrpcSessionsClient, DetectIntentRequest,
     DetectIntentResponse, StreamingDetectIntentRequest, StreamingDetectIntentResponse,
 };
-use crate::common::{new_grpc_channel, new_interceptor};
+use crate::common::{get_token, new_grpc_channel, new_interceptor};
 use crate::errors::Result;
 use async_stream::try_stream;
 use futures_core::stream::Stream;
-use gouth::Builder;
 use log::*;
 use std::result::Result as StdResult;
-use std::sync::Arc;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
 use tonic::Response as TonicResponse;
@@ -45,8 +43,7 @@ impl SessionsClient {
         )
         .await?;
 
-        let token = Builder::new().json(google_credentials).build()?;
-        let token_header_val: Arc<String> = token.header_value()?;
+        let token_header_val = get_token(google_credentials)?;
 
         let sessions_client: GrpcSessionsClient<Channel> =
             GrpcSessionsClient::with_interceptor(channel, new_interceptor(token_header_val)?);
@@ -77,8 +74,7 @@ impl SessionsClient {
         )
         .await?;
 
-        let token = Builder::new().json(google_credentials).build()?;
-        let token_header_val: Arc<String> = token.header_value()?;
+        let token_header_val = get_token(google_credentials)?;
 
         let sessions_client: GrpcSessionsClient<Channel> =
             GrpcSessionsClient::with_interceptor(channel, new_interceptor(token_header_val)?);

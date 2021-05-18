@@ -1,5 +1,6 @@
 use crate::errors::Result;
 use crate::CERTIFICATES;
+use gouth::Builder;
 use std::sync::Arc;
 use tonic::{
     metadata::MetadataValue,
@@ -49,4 +50,12 @@ pub async fn new_grpc_channel(
             .connect()
             .await?)
     };
+}
+
+/// Returns google token (String value) from
+/// Google Cloud Platform project JSON credentials (provided as String).
+pub fn get_token(google_credentials: impl AsRef<str>) -> Result<Arc<String>> {
+    let token = Builder::new().json(google_credentials).build()?;
+    let token_header_val: Arc<String> = token.header_value()?;
+    Ok(token_header_val)
 }

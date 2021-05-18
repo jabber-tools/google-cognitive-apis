@@ -2,10 +2,8 @@ use crate::api::grpc::google::cloud::texttospeech::v1::{
     text_to_speech_client::TextToSpeechClient, ListVoicesRequest, ListVoicesResponse,
     SynthesizeSpeechRequest, SynthesizeSpeechResponse,
 };
-use crate::common::{new_grpc_channel, new_interceptor};
+use crate::common::{get_token, new_grpc_channel, new_interceptor};
 use crate::errors::Result;
-use gouth::Builder;
-use std::sync::Arc;
 use tonic::transport::Channel;
 use tonic::Response as TonicResponse;
 
@@ -28,8 +26,7 @@ impl Synthesizer {
         )
         .await?;
 
-        let token = Builder::new().json(google_credentials).build()?;
-        let token_header_val: Arc<String> = token.header_value()?;
+        let token_header_val = get_token(google_credentials)?;
 
         let text_to_speech_client: TextToSpeechClient<Channel> =
             TextToSpeechClient::with_interceptor(channel, new_interceptor(token_header_val)?);
