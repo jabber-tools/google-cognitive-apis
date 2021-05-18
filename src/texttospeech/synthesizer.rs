@@ -1,5 +1,6 @@
 use crate::api::grpc::google::cloud::texttospeech::v1::{
-    text_to_speech_client::TextToSpeechClient, SynthesizeSpeechRequest, SynthesizeSpeechResponse,
+    text_to_speech_client::TextToSpeechClient, ListVoicesRequest, ListVoicesResponse,
+    SynthesizeSpeechRequest, SynthesizeSpeechResponse,
 };
 use crate::common::{new_grpc_channel, new_interceptor};
 use crate::errors::Result;
@@ -38,7 +39,7 @@ impl Synthesizer {
         })
     }
 
-    /// Synthetizes plain string or ssml string into audio bytes.
+    /// Synthesizes speech synchronously.
     pub async fn synthesize_speech(
         &mut self,
         request: SynthesizeSpeechRequest,
@@ -47,6 +48,16 @@ impl Synthesizer {
         let response: TonicResponse<SynthesizeSpeechResponse> = self
             .text_to_speech_client
             .synthesize_speech(synthesize_speech_req)
+            .await?;
+        Ok(response.into_inner())
+    }
+
+    /// Returns a list of Voice supported for synthesis.
+    pub async fn list_voices(&mut self, request: ListVoicesRequest) -> Result<ListVoicesResponse> {
+        let list_voices_req = tonic::Request::new(request);
+        let response: TonicResponse<ListVoicesResponse> = self
+            .text_to_speech_client
+            .list_voices(list_voices_req)
             .await?;
         Ok(response.into_inner())
     }
