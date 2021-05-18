@@ -1,3 +1,6 @@
+use crate::api::grpc::google::cloud::dialogflow::v2beta1::{
+    StreamingDetectIntentRequest, StreamingDetectIntentResponse,
+};
 use crate::api::grpc::google::cloud::speechtotext::v1::{
     StreamingRecognizeRequest, StreamingRecognizeResponse,
 };
@@ -88,6 +91,24 @@ impl From<SendError<StreamingRecognizeRequest>> for Error {
 
 impl From<SendError<StreamingRecognizeResponse>> for Error {
     fn from(error: SendError<StreamingRecognizeResponse>) -> Error {
+        Error {
+            message: format!("{}", error),
+            code: None,
+        }
+    }
+}
+
+impl From<SendError<StreamingDetectIntentRequest>> for Error {
+    fn from(error: SendError<StreamingDetectIntentRequest>) -> Error {
+        Error {
+            message: format!("{}", error),
+            code: None,
+        }
+    }
+}
+
+impl From<SendError<StreamingDetectIntentResponse>> for Error {
+    fn from(error: SendError<StreamingDetectIntentResponse>) -> Error {
         Error {
             message: format!("{}", error),
             code: None,

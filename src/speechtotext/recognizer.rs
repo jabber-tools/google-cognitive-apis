@@ -149,7 +149,7 @@ impl Recognizer {
     }
 
     /// Returns receiver that can be used to receive speech-to-text results
-    /// used with streaming_recognize_2 function.
+    /// used with streaming_recognize function.
     pub fn get_streaming_result_receiver(
         &mut self,
         // buffer size for tokio channel. If not provided defaults to 1000.
