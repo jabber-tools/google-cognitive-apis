@@ -171,6 +171,9 @@ impl SessionsClient {
         format!("projects/{}/agent/sessions/{}", project_id, session_id)
     }
 
+    /// IMPORTANT: currently streaming_detect_intent does not work properly
+    /// because half-close operation is not implemented. Details here(go example):
+    /// https://cloud.google.com/dialogflow/es/docs/how/detect-intent-stream#detect-intent-stream-go
     #[allow(unreachable_code)]
     pub async fn streaming_detect_intent_async_stream(
         &mut self,
@@ -200,6 +203,9 @@ impl SessionsClient {
     /// Initiates bidirectional streaming. This call should be spawned
     /// into separate tokio task. Results can be then retrieved via
     /// channel receiver returned by method get_streaming_result_receiver.
+    /// IMPORTANT: currently streaming_detect_intent does not work properly
+    /// because half-close operation is not implemented. Details here(go example):
+    /// https://cloud.google.com/dialogflow/es/docs/how/detect-intent-stream#detect-intent-stream-go
     pub async fn streaming_detect_intent(&mut self) -> Result<()> {
         // yank self.audio_receiver so that we can consume it
         if let Some(audio_receiver) = self.audio_receiver.take() {
