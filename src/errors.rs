@@ -1,3 +1,4 @@
+//! Package error contains struct Error used to wrap library errors.
 use crate::api::grpc::google::cloud::dialogflow::v2beta1::{
     StreamingDetectIntentRequest, StreamingDetectIntentResponse,
 };

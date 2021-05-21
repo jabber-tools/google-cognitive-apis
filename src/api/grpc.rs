@@ -1,3 +1,4 @@
+//! This module wraps underlying GRPC stubs and organizes them into nested module structure.
 macro_rules! include_proto {
     ($package: tt) => {
         include!(concat!("../grpc_stubs/", concat!($package, ".rs")));

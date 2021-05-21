@@ -1,3 +1,4 @@
+//! Contains common utility & convenience functions.
 use crate::errors::Result;
 use crate::CERTIFICATES;
 use gouth::Builder;
