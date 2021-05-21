@@ -1,5 +1,5 @@
 use google_cognitive_apis::api::grpc::google::cloud::dialogflow::v2beta1::{
-    DetectIntentRequest, QueryInput, TextInput, query_input::Input,
+    query_input::Input, DetectIntentRequest, QueryInput, TextInput,
 };
 use google_cognitive_apis::dialogflow::sessions_client::SessionsClient;
 use log::*;
@@ -17,7 +17,6 @@ async fn main() {
     let guid = "8d58ca66-8977-4d14-8664-c48388b283b8";
     let session_id = SessionsClient::get_session_string("<<gcp project id>>", guid);
 
-
     let request = DetectIntentRequest {
         session: session_id,
         query_params: None,
@@ -25,18 +24,14 @@ async fn main() {
             input: Some(Input::Text(TextInput {
                 text: "Hi there".to_owned(),
                 language_code: "en".to_owned(),
-            }))
-
+            })),
         }),
         output_audio_config: None,
         output_audio_config_mask: None,
-        input_audio: vec![]
+        input_audio: vec![],
     };
 
-    let mut sessions_client =
-        SessionsClient::create_sync(credentials)
-            .await
-            .unwrap();
+    let mut sessions_client = SessionsClient::create_sync(credentials).await.unwrap();
 
     match sessions_client.detect_intent(request).await {
         Err(err) => {
