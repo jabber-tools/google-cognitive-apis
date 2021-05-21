@@ -16,7 +16,7 @@ async fn main() {
 
     let credentials = fs::read_to_string("/tmp/gdf-cred.json").unwrap();
 
-    let guid = "10db5977-7f28-4a57-92fb-88459ff8c239";
+    let guid = "8d58ca66-8977-4d14-8664-c48388b283b8";
     let session_id = SessionsClient::get_session_string("<<gcp project id>>", guid);
 
     #[allow(deprecated)]
@@ -82,6 +82,13 @@ async fn main() {
             audio_sender.send(streaming_request).await.unwrap();
 
             if n < chunk_size {
+                // At this moment client should send half-close message to server
+                // indicating no more data will be sent. Google API streaming_detect_intent
+                // only then initiates NLP analysis and will start producing responses
+                // Right now half-close is not implemented by this library
+                // Details here:
+                // https://grpc.github.io/grpc/core/md_doc_core_transport_explainer.html
+                // https://cloud.google.com/dialogflow/es/docs/how/detect-intent-stream#detect-intent-stream-go
                 break;
             }
         }
