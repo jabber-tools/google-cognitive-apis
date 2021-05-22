@@ -1,5 +1,4 @@
 # Google Cognitive APIs
-=======================
 [![CI](https://github.com/jabber-tools/google-cognitive-apis/actions/workflows/github-actions-rust-ci.yml/badge.svg)](https://github.com/jabber-tools/google-cognitive-apis/actions/workflows/github-actions-rust-ci.yml)
 
 ---
