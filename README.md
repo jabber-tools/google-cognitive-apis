@@ -1,13 +1,15 @@
 # Google Cognitive APIs
 
 ---
+Asynchronous Rust bindings for Google Cloud Platform cognitive gRPC APIs.
+Provides high level interfaces wrapping complexity of low-level GRPC implementation. 
+Following APIs are currently supported: 
 
-This library enables interaction with selected Google Cloud cognitive APIs. Provides high level interfaces
-wrapping complexity of low-level GRPC implementation. Following APIs are currently supported: 
-
-* Dialogflow (NLP)
-* Speech-to-text
-* Text-to-speech
+| Service                                               | Feature name | Status          |
+| ----------------------------------------------------- | ------------ | --------------- |
+| [**Dialogflow ES**](https://cloud.google.com/dialogflow)        | `dialogflow`     | **In progress**    |
+| [**Speech-to-text**](https://cloud.google.com/speech-to-text)   | `speech-to-text`  | **Complete**    |
+| [**Text-to-speech**](https://cloud.google.com/text-to-speech) | `text-to-speech`    | **Complete**    |
 
 ## Google API proto definitions
 Google proto definitions have been taken from [this](https://github.com/googleapis/googleapis) repo.
@@ -27,43 +29,3 @@ Until then use *speech-to-text streaming* API and Dialogflow *detect intent* API
 ## Examples
 
 You can find all examples [here](https://github.com/jabber-tools/google-cognitive-apis/tree/main/examples).
-
-### How to build
-
-```rust
-cargo build --examples
-```
-
-### How to run
-
-```rust
-cargo run --example recognizer_sync
-```
-
-```rust
-cargo run --example recognizer_async
-```
-
-```rust
-cargo run --example recognizer_streaming
-```
-
-```rust
-cargo run --example recognizer_streaming_async_stream
-```
-
-```rust
-cargo run --example sessions_client_streaming_detect_intent
-```
-
-```rust
-cargo run --example sessions_client_streaming_detect_intent_async_stream
-```
-
-```rust
-cargo run --example sessions_client_detect_intent
-```
-
-```rust
-cargo run --example synthesizer
-```
