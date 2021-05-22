@@ -17,6 +17,7 @@ Google proto definitions have been taken from [this](https://github.com/googleap
 ## Limitations
 
 * Only limited subset of Google cognitive APIs is supported. Feel free to raise PR with new additions! 
+* Dialogflow CX is not yet supported.
 * For Dialogflow we currently support only *SessionClient* (The purpose of this library is not support different DialogFlow management APIs).
 * REST APIs are supported with single purpose: to define structs that will enable deserialization of JSON config structures and their conversion into GRPC counterparts.
 Full support for REST APIs will be not introduced.
