@@ -1,5 +1,7 @@
 # Google Cognitive APIs
 [![CI](https://github.com/jabber-tools/google-cognitive-apis/actions/workflows/github-actions-rust-ci.yml/badge.svg)](https://github.com/jabber-tools/google-cognitive-apis/actions/workflows/github-actions-rust-ci.yml)
+[![License](https://img.shields.io/badge/License-Apache-blue.svg)](LICENSE-APACHE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE-MIT)
 
 Asynchronous Rust bindings for Google Cloud Platform cognitive gRPC APIs.
 Provides high level interfaces wrapping complexity of low-level GRPC implementation. 
