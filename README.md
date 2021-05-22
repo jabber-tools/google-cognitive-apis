@@ -1,6 +1,7 @@
 # Google Cognitive APIs
 ---
 [![CI](https://github.com/jabber-tools/google-cognitive-apis/actions/workflows/github-actions-rust-ci.yml/badge.svg)](https://github.com/jabber-tools/google-cognitive-apis/actions/workflows/github-actions-rust-ci.yml)
+
 Asynchronous Rust bindings for Google Cloud Platform cognitive gRPC APIs.
 Provides high level interfaces wrapping complexity of low-level GRPC implementation. 
 Following APIs are currently supported: 
