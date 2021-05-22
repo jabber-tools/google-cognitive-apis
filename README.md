@@ -5,7 +5,7 @@ Asynchronous Rust bindings for Google Cloud Platform cognitive gRPC APIs.
 Provides high level interfaces wrapping complexity of low-level GRPC implementation. 
 Following APIs are currently supported: 
 
-| Service                                               | Feature name | Status          |
+| Cognitive API                                               | Feature name | Status          |
 | ----------------------------------------------------- | ------------ | --------------- |
 | [**Dialogflow ES**](https://cloud.google.com/dialogflow)        | `dialogflow`     | **In progress**    |
 | [**Speech-to-text**](https://cloud.google.com/speech-to-text)   | `speech-to-text`  | **Complete**    |
