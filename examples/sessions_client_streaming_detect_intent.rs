@@ -14,10 +14,10 @@ async fn main() {
     env_logger::init();
     info!("sessions_client_streaming_detect_intent example");
 
-    let credentials = fs::read_to_string("/tmp/freight-cs-voice-uat-ab488946b5d6.json").unwrap();
+    let credentials = fs::read_to_string("/tmp/gdf-cred.json").unwrap();
 
     let guid = "10db5977-7f28-4a57-92fb-88459ff8c239";
-    let session_id = SessionsClient::get_session_string("freight-cs-voice-uat", guid);
+    let session_id = SessionsClient::get_session_string("<<gcp project id>>", guid);
 
     #[allow(deprecated)]
     let streaming_detect_intent_req = StreamingDetectIntentRequest {
