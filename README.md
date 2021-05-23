@@ -34,3 +34,7 @@ Until then use *speech-to-text streaming* API and Dialogflow *detect intent* API
 ## Examples
 
 You can find all examples [here](https://github.com/jabber-tools/google-cognitive-apis/tree/main/examples).
+
+## License
+
+Licensed under either Apache-2.0 or MIT license. 
