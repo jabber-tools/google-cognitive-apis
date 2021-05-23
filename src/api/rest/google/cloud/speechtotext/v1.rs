@@ -1,5 +1,6 @@
-#[allow(clippy::from_over_into)]
-#[allow(clippy::manual_unwrap_or)]
+#![allow(clippy::from_over_into)]
+#![allow(clippy::manual_unwrap_or)]
+#![allow(clippy::manual_map)]
 use crate::api::grpc::google::cloud::speechtotext::v1::RecognitionConfig as GrpcRecognitionConfig;
 use crate::api::grpc::google::cloud::speechtotext::v1::RecognitionMetadata as GrpcRecognitionMetadata;
 use crate::api::grpc::google::cloud::speechtotext::v1::SpeakerDiarizationConfig as GrpcSpeakerDiarizationConfig;

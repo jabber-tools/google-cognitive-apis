@@ -1,3 +1,4 @@
+#![allow(clippy::manual_map)]
 use crate::api::grpc::google::cloud::dialogflow::v2beta1::{
     sessions_client::SessionsClient as GrpcSessionsClient, DetectIntentRequest,
     DetectIntentResponse, StreamingDetectIntentRequest, StreamingDetectIntentResponse,

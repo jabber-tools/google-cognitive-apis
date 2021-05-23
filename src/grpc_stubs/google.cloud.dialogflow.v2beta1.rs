@@ -1718,7 +1718,9 @@ pub mod intent {
             pub user_defined: bool,
         }
         /// Represents different types of training phrases.
-        #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+        #[derive(
+            Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration,
+        )]
         #[repr(i32)]
         pub enum Type {
             /// Not specified. This value should never be used.
@@ -2568,7 +2570,9 @@ pub mod intent {
             pub text: ::prost::alloc::string::String,
         }
         /// Represents different platforms that a rich message can be intended for.
-        #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+        #[derive(
+            Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration,
+        )]
         #[repr(i32)]
         pub enum Platform {
             /// Not specified.
@@ -4352,7 +4356,9 @@ pub mod knowledge_answers {
     pub mod answer {
         /// Represents the system's confidence that this knowledge answer is a good
         /// match for this conversational query.
-        #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+        #[derive(
+            Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration,
+        )]
         #[repr(i32)]
         pub enum MatchConfidenceLevel {
             /// Not specified.
