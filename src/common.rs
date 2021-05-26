@@ -18,6 +18,13 @@ pub fn new_interceptor(token_header_val: Arc<String>) -> Result<tonic::Intercept
         return match meta_result {
             Ok(meta) => {
                 req.metadata_mut().insert("authorization", meta);
+
+                // TBD: half-close operation probably needs to be somehow implemented in interceptor
+                // by adding specific metadata to last message
+                //
+                // https://grpclib.readthedocs.io/en/latest/client.html#grpclib.client.Stream.send_message
+                // https://grpclib.readthedocs.io/en/latest/client.html
+                // req.metadata().append() ???
                 Ok(req)
             }
             Err(some_error) => Err(tonic::Status::internal(format!(

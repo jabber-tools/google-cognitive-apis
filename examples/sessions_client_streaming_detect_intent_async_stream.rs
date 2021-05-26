@@ -3,7 +3,7 @@ use futures_util::stream::StreamExt;
 use google_cognitive_apis::api::grpc::google::cloud::dialogflow::v2beta1::{
     query_input::Input, InputAudioConfig, QueryInput, StreamingDetectIntentRequest,
 };
-use google_cognitive_apis::dialogflow::sessions_client::SessionsClient;
+use google_cognitive_apis::dialogflow::sessions_client_streaming::SessionsClient;
 
 use log::*;
 use std::env;
@@ -16,7 +16,7 @@ async fn main() {
     env_logger::init();
     info!("sessions_client_streaming_detect_intent_async_stream example");
 
-    let credentials = fs::read_to_string("/tmp/gdf-cred.json").unwrap();
+    let credentials = fs::read_to_string("/tmp/cred.json").unwrap();
 
     let guid = "8d58ca66-8977-4d14-8664-c48388b283b8";
     let session_id = SessionsClient::get_session_string("<<gcp project id>>", guid);
@@ -46,7 +46,7 @@ async fn main() {
     };
 
     let mut sessions_client =
-        SessionsClient::create_async(credentials, streaming_detect_intent_req, None)
+        SessionsClient::create(credentials, streaming_detect_intent_req, None)
             .await
             .unwrap();
 

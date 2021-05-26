@@ -31,7 +31,7 @@ async fn main() {
         input_audio: vec![],
     };
 
-    let mut sessions_client = SessionsClient::create_sync(credentials).await.unwrap();
+    let mut sessions_client = SessionsClient::create(credentials).await.unwrap();
 
     match sessions_client.detect_intent(request).await {
         Err(err) => {
