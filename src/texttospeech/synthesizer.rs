@@ -1,3 +1,4 @@
+//! Text-to-speech synthesizer module.
 use crate::api::grpc::google::cloud::texttospeech::v1::{
     text_to_speech_client::TextToSpeechClient, ListVoicesRequest, ListVoicesResponse,
     SynthesizeSpeechRequest, SynthesizeSpeechResponse,
@@ -10,6 +11,7 @@ use tonic::Response as TonicResponse;
 /// Google speech synthesizer
 #[derive(Debug, Clone)]
 pub struct Synthesizer {
+    /// underlying gRPC Tonic text-to-speech client
     text_to_speech_client: TextToSpeechClient<Channel>,
 }
 

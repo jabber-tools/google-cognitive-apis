@@ -1,3 +1,7 @@
+//! This module contains Google Dialogflow Session client
+//! that can be used for detec_intent operation. This is simple
+//! request/response operation, no streaming is involved. As a result
+//! this client is easily cloneable.
 #![allow(clippy::manual_map)]
 use crate::api::grpc::google::cloud::dialogflow::v2beta1::{
     sessions_client::SessionsClient as GrpcSessionsClient, DetectIntentRequest,

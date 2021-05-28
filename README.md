@@ -6,7 +6,14 @@
 [![docs](https://docs.rs/google-cognitive-apis/badge.svg)](https://docs.rs/google-cognitive-apis)
 
 Asynchronous Rust bindings for Google Cloud Platform cognitive gRPC APIs.
-Provides high level interfaces wrapping complexity of low-level GRPC implementation. 
+Provides high level interfaces wrapping complexity of low-level GRPC implementation. Bidirectional gRPC streaming is supported
+with two alternative approaches:
+
+* tokio.rs channels
+* asynchronous streams facilitated by crate [async-stream](https://crates.io/crates/async-stream)
+
+
+
 Following APIs are currently supported: 
 
 | Cognitive API                                               | Feature name | Status          |

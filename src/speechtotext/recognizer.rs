@@ -1,3 +1,4 @@
+//! Speech-to-text recognizer module.
 #![allow(clippy::manual_map)]
 use crate::api::grpc::google::cloud::speechtotext::v1::{
     speech_client::SpeechClient, streaming_recognize_request::StreamingRequest,
