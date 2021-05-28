@@ -12,7 +12,7 @@ use tonic::{
 /// Convenience function to return tonic Interceptor
 /// (see https://docs.rs/tonic/0.4.3/tonic/struct.Interceptor.html)
 #[allow(clippy::rc_buffer)]
-pub (crate) fn new_interceptor(token_header_val: Arc<String>) -> Result<tonic::Interceptor> {
+pub(crate) fn new_interceptor(token_header_val: Arc<String>) -> Result<tonic::Interceptor> {
     let interceptor = tonic::Interceptor::new(move |mut req: tonic::Request<()>| {
         let meta_result = MetadataValue::from_str(&token_header_val);
 
@@ -40,7 +40,7 @@ pub (crate) fn new_interceptor(token_header_val: Arc<String>) -> Result<tonic::I
 /// Creates new GRPC channel to *.googleapis.com API
 /// Domain name and channel URL (like texttospeech.googleapis.com & https://texttospeech.googleapis.com)
 /// is provided as input. Optionally timeout in seconds can be specified.
-pub (crate) async fn new_grpc_channel(
+pub(crate) async fn new_grpc_channel(
     domain_name: &'static str,
     channel_url: &'static str,
     timeout_secs: Option<u64>,
@@ -66,7 +66,7 @@ pub (crate) async fn new_grpc_channel(
 /// Returns google token (String value) from
 /// Google Cloud Platform project JSON credentials (provided as String).
 #[allow(clippy::rc_buffer)]
-pub (crate) fn get_token(google_credentials: impl AsRef<str>) -> Result<Arc<String>> {
+pub(crate) fn get_token(google_credentials: impl AsRef<str>) -> Result<Arc<String>> {
     let token = Builder::new().json(google_credentials).build()?;
     let token_header_val: Arc<String> = token.header_value()?;
     Ok(token_header_val)
