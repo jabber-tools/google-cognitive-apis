@@ -118,7 +118,7 @@ pub fn deserialize_detect_intent_response(json_str: &str) -> Result<DetectIntent
 /// into Map<String, String>. If provided jason value is not object
 /// None is returned instead
 pub fn deserialize_detect_intent_response_params_to_str_map(
-    json_val: JsonData,
+    json_val: &JsonData,
 ) -> Option<HashMap<String, String>> {
     return if json_val.is_object() {
         let mut hash_map = HashMap::new();
@@ -186,7 +186,7 @@ mod tests {
 
         let params = detect_intent_resp.query_result.unwrap().parameters.unwrap();
         let params_map =
-            super::deserialize_detect_intent_response_params_to_str_map(params).unwrap();
+            super::deserialize_detect_intent_response_params_to_str_map(&params).unwrap();
         println!("params {:#?}", params_map);
         assert_eq!(params_map.len(), 4);
         assert_eq!(params_map.get("hangup_timeout").unwrap(), "20000");
