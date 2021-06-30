@@ -342,6 +342,7 @@ impl Into<GrpcRecognitionConfig> for RecognitionConfig {
     }
 }
 
+/// Converts string into RecognitionConfig. Uses serde_path_to_error to get detailed and meaningful parsing errors
 pub fn deserialize_recognition_config(json_str: &str) -> Result<RecognitionConfig> {
     let jd = &mut serde_json::Deserializer::from_str(json_str);
     let result: std::result::Result<RecognitionConfig, _> = serde_path_to_error::deserialize(jd);
