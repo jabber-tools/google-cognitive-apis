@@ -36,7 +36,7 @@ pub struct QueryResult {
 
 #[derive(Debug, Deserialize)]
 pub struct DiagnosticInfo {
-    pub end_conversation: bool,
+    pub end_conversation: Option<bool>,
 }
 
 #[derive(Debug, Deserialize)]
