@@ -255,41 +255,41 @@ pub struct RecognitionConfig {
     pub use_enhanced: Option<bool>,
 }
 
-fn default_language_code() -> String {
+pub fn default_language_code() -> String {
     // for convenience we are setting this in google STT implementation
     // based on STT DB config
     "".to_owned()
 }
 
-fn default_model() -> RecognitionConfigModel {
+pub fn default_model() -> RecognitionConfigModel {
     RecognitionConfigModel::default
 }
 
-fn default_encoding() -> AudioEncoding {
+pub fn default_encoding() -> AudioEncoding {
     AudioEncoding::LINEAR16
 }
 
-fn default_audio_channel_count() -> i32 {
+pub fn default_audio_channel_count() -> i32 {
     1
 }
 
-fn default_max_alternatives() -> i32 {
+pub fn default_max_alternatives() -> i32 {
     1
 }
 
-fn default_profanity_filter() -> bool {
+pub fn default_profanity_filter() -> bool {
     false
 }
 
-fn default_enable_word_time_offsets() -> bool {
+pub fn default_enable_word_time_offsets() -> bool {
     false
 }
 
-fn default_enable_automatic_punctuation() -> bool {
+pub fn default_enable_automatic_punctuation() -> bool {
     false
 }
 
-fn default_enable_separate_recognition_per_channel() -> bool {
+pub fn default_enable_separate_recognition_per_channel() -> bool {
     false
 }
 
