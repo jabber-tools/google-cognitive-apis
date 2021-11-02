@@ -5,6 +5,8 @@ use crate::api::grpc::google::cloud::dialogflow::v2beta1::{
 use crate::api::grpc::google::cloud::speechtotext::v1::{
     StreamingRecognizeRequest, StreamingRecognizeResponse,
 };
+use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::StreamingRecognizeRequest as StreamingRecognizeRequestBeta;
+use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::StreamingRecognizeResponse as StreamingRecognizeResponseBeta;
 use gouth::Error as GAuthError;
 use prost::DecodeError as ProstDecodeError;
 use std::result;
@@ -90,8 +92,26 @@ impl From<SendError<StreamingRecognizeRequest>> for Error {
     }
 }
 
+impl From<SendError<StreamingRecognizeRequestBeta>> for Error {
+    fn from(error: SendError<StreamingRecognizeRequestBeta>) -> Error {
+        Error {
+            message: format!("{}", error),
+            code: None,
+        }
+    }
+}
+
 impl From<SendError<StreamingRecognizeResponse>> for Error {
     fn from(error: SendError<StreamingRecognizeResponse>) -> Error {
+        Error {
+            message: format!("{}", error),
+            code: None,
+        }
+    }
+}
+
+impl From<SendError<StreamingRecognizeResponseBeta>> for Error {
+    fn from(error: SendError<StreamingRecognizeResponseBeta>) -> Error {
         Error {
             message: format!("{}", error),
             code: None,
