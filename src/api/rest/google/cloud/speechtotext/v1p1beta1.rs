@@ -1,8 +1,11 @@
+use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::SpeechAdaptation as GrpcSpeechAdaptation;
 /// This module DOES NOT address all the differences between GRPC v1 and v1p1beta1 proto definitions
 /// of speech-to-text API. For now it only defines extended version of SpeechContext struct
 /// where boost parameter is added. Also RecognitionConfig using new SpeechContext is defined here.
+///
+/// RecognitionConfig also provides support for adaptation attribute (SpeechAdaptation) which
+/// when used replaces SpeechContext.
 /// JSON-to-GRPC struct conversion does not support following attributes:
-///     adaptation
 ///     alternative_language_codes
 ///     diarization_speaker_count
 ///     enable_speaker_diarization
@@ -26,6 +29,10 @@ use super::v1::{
     SpeakerDiarizationConfig,
 };
 
+use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::custom_class::ClassItem as GrpcClassItem;
+use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::phrase_set::Phrase as GrpcPhrase;
+use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::CustomClass as GrpcCustomClass;
+use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::PhraseSet as GrpcPhraseSet;
 use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::RecognitionConfig as GrpcRecognitionConfig;
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -95,6 +102,9 @@ pub struct RecognitionConfig {
 
     #[serde(rename = "useEnhanced", skip_serializing_if = "Option::is_none")]
     pub use_enhanced: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub adaptation: Option<SpeechAdaptation>,
 }
 
 #[allow(deprecated)]
@@ -139,10 +149,13 @@ impl Into<GrpcRecognitionConfig> for RecognitionConfig {
                 Some(val) => val,
                 _ => false,
             },
+            adaptation: match self.adaptation {
+                Some(adpt) => Some(adpt.into()),
+                _ => None,
+            },
             // Below are the new v1p1beta1 attributes of RecognitionConfig
             // Since we introduced this config initially for enhanced SpeechContext
             // only these are not supported currently and we map just default/None values!
-            adaptation: None,
             alternative_language_codes: vec![],
             diarization_speaker_count: 2,
             enable_speaker_diarization: false,
@@ -151,4 +164,120 @@ impl Into<GrpcRecognitionConfig> for RecognitionConfig {
             enable_word_confidence: false,
         }
     }
+}
+/// See https://cloud.google.com/speech-to-text/docs/reference/rest/v1p1beta1/RecognitionConfig#SpeechAdaptation
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct SpeechAdaptation {
+    #[serde(rename = "phraseSets")]
+    pub phrase_sets: Vec<PhraseSet>,
+
+    #[serde(rename = "phraseSetReferences")]
+    pub phrase_set_references: Vec<String>,
+
+    #[serde(rename = "customClasses")]
+    pub custom_classes: Vec<CustomClass>,
+}
+
+impl Into<GrpcSpeechAdaptation> for SpeechAdaptation {
+    fn into(self) -> GrpcSpeechAdaptation {
+        GrpcSpeechAdaptation {
+            phrase_sets: {
+                let mut phrase_sets: Vec<GrpcPhraseSet> = vec![];
+
+                for item in self.phrase_sets {
+                    phrase_sets.push(item.into())
+                }
+                phrase_sets
+            },
+            phrase_set_references: {
+                let mut phrase_set_references: Vec<String> = vec![];
+
+                for item in self.phrase_set_references {
+                    phrase_set_references.push(item.to_owned())
+                }
+                phrase_set_references
+            },
+            custom_classes: {
+                let mut custom_classes: Vec<GrpcCustomClass> = vec![];
+
+                for item in self.custom_classes {
+                    custom_classes.push(item.into())
+                }
+                custom_classes
+            },
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PhraseSet {
+    pub name: String,
+    pub phrases: Vec<Phrase>,
+    pub boost: f32,
+}
+
+impl Into<GrpcPhraseSet> for PhraseSet {
+    fn into(self) -> GrpcPhraseSet {
+        GrpcPhraseSet {
+            name: self.name.into(),
+            phrases: {
+                let mut grpc_phrases: Vec<GrpcPhrase> = vec![];
+
+                for item in self.phrases {
+                    grpc_phrases.push(item.into())
+                }
+                grpc_phrases
+            },
+            boost: self.boost.into(),
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct Phrase {
+    pub value: String,
+    pub boost: f32,
+}
+
+impl Into<GrpcPhrase> for Phrase {
+    fn into(self) -> GrpcPhrase {
+        GrpcPhrase {
+            value: self.value,
+            boost: self.boost,
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct CustomClass {
+    pub name: String,
+
+    #[serde(rename = "customClassId")]
+    pub custom_class_id: String,
+
+    pub items: Vec<ClassItem>,
+}
+
+impl Into<GrpcCustomClass> for CustomClass {
+    fn into(self) -> GrpcCustomClass {
+        GrpcCustomClass {
+            name: self.name,
+            custom_class_id: self.custom_class_id,
+            items: {
+                let mut cc_items: Vec<GrpcClassItem> = vec![];
+
+                for item in self.items {
+                    cc_items.push(GrpcClassItem {
+                        value: item.value.to_owned(),
+                    })
+                }
+                cc_items
+            },
+        }
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct ClassItem {
+    pub value: String,
 }
