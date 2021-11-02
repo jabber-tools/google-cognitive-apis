@@ -1,6 +1,18 @@
 /// This module DOES NOT address all the differences between GRPC v1 and v1p1beta1 proto definitions
 /// of speech-to-text API. For now it only defines extended version of SpeechContext struct
 /// where boost parameter is added. Also RecognitionConfig using new SpeechContext is defined here.
+/// JSON-to-GRPC struct conversion does not support following attributes:
+///     adaptation
+///     alternative_language_codes
+///     diarization_speaker_count
+///     enable_speaker_diarization
+///     enable_spoken_emojis
+///     enable_spoken_punctuation
+///     enable_word_confidence
+///     diarization_config
+///     metadata
+/// This can be added but would require implementation of serde deserialization
+/// and Into<T> implementation as we currently have in v1 REST API.
 use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::SpeechContext as GrpcSpeechContext;
 use serde::{Deserialize, Serialize};
 use std::convert::Into;
