@@ -1,3 +1,6 @@
+#![allow(clippy::from_over_into)]
+#![allow(clippy::manual_unwrap_or)]
+#![allow(clippy::manual_map)]
 use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::SpeechAdaptation as GrpcSpeechAdaptation;
 /// This module DOES NOT address all the differences between GRPC v1 and v1p1beta1 proto definitions
 /// of speech-to-text API. For now it only defines extended version of SpeechContext struct
@@ -220,7 +223,7 @@ pub struct PhraseSet {
 impl Into<GrpcPhraseSet> for PhraseSet {
     fn into(self) -> GrpcPhraseSet {
         GrpcPhraseSet {
-            name: self.name.into(),
+            name: self.name,
             phrases: {
                 let mut grpc_phrases: Vec<GrpcPhrase> = vec![];
 
@@ -229,7 +232,7 @@ impl Into<GrpcPhraseSet> for PhraseSet {
                 }
                 grpc_phrases
             },
-            boost: self.boost.into(),
+            boost: self.boost,
         }
     }
 }

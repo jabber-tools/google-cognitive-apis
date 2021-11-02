@@ -125,7 +125,7 @@ pub fn deserialize_detect_intent_response_params_to_str_map(
         for params_map in json_val.as_object().iter() {
             for (key, val) in params_map.iter() {
                 let mut val_str = &val.to_string()[..];
-                if val_str.starts_with("\"") && val_str.ends_with("\"") {
+                if val_str.starts_with('"') && val_str.ends_with('"') {
                     val_str = &val_str[1..val_str.len() - 1];
                 }
                 hash_map.insert(key.to_string(), val_str.to_string());
