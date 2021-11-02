@@ -1,9 +1,19 @@
-//! Speech-to-text recognizer module for beta API (v1p1beta1).
+//! Speech-to-text recognizer module - v1p1beta1 STT API.
 // TBD: this module should be redesigned significantly. It is just
-// copy paste of recognizer.rs where crate::api::grpc::google::cloud::speechtotext::v1
-// was replaced with crate::api::grpc::google::cloud::speechtotext::v1p1beta1
+// copy paste of recognizer.rs where:
+//    crate::api::grpc::google::cloud::speechtotext::v1
+// was replaced with:
+//    crate::api::grpc::google::cloud::speechtotext::v1p1beta1
 // i.e. there is terrible code duplication. this will be refactored in the future
-// to avoid this kind of code duplication
+// to avoid this kind of code duplication. Not easy to address with generics since
+// generic cannot be further generalized (e.g. SpeechClient<Channel> if SpeechClient is generic type)
+// and cannot be used to create struct
+// e.g. 'let streaming_config = StreamingRecognizeRequest {...}' if StreamingRecognizeRequest is generic
+//
+// For now to keep it as easy to maintain as possible following rule should be followed:
+// the only difference between recognizer.rs and recognizer_beta.rs is this comment section
+// and import of crate::api::grpc::google::cloud::speechtotext::... structs (v1 vs v1p1beta1)!
+// all the other code below it must be identical!
 #![allow(clippy::manual_map)]
 use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::{
     speech_client::SpeechClient, streaming_recognize_request::StreamingRequest,

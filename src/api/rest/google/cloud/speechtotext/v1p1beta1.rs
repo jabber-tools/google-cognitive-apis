@@ -17,6 +17,7 @@ use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::SpeechAdaptation a
 /// This can be added but would require implementation of serde deserialization
 /// and Into<T> implementation as we currently have in v1 REST API.
 use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::SpeechContext as GrpcSpeechContext;
+use crate::errors::{Error, Result};
 use serde::{Deserialize, Serialize};
 use std::convert::Into;
 // since initial implementation really extends just SpeechContext and defines RecognitionConfig which
@@ -280,4 +281,85 @@ impl Into<GrpcCustomClass> for CustomClass {
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ClassItem {
     pub value: String,
+}
+
+/// Converts string into RecognitionConfig. Uses serde_path_to_error to get detailed and meaningful parsing errors
+pub fn deserialize_recognition_config(json_str: &str) -> Result<RecognitionConfig> {
+    let jd = &mut serde_json::Deserializer::from_str(json_str);
+    let result: std::result::Result<RecognitionConfig, _> = serde_path_to_error::deserialize(jd);
+    match result {
+        Ok(config) => Ok(config),
+        Err(err) => {
+            let err_path = err.path().to_string();
+            Err(Error::new(format!(
+                "Error when deserializing speech recognition config (v1p1beta1) at path: {}. Full error: {}",
+                err_path,
+                err.to_string()
+            )))
+        }
+    }
+}
+
+mod tests {
+    #[allow(unused_imports)]
+    use super::*;
+
+    // cargo test -- --show-output test_convert_to_beta_grpc
+    #[test]
+    fn test_convert_to_beta_grpc() {
+        let json_str = r#"
+            {
+                "encoding": "MULAW",
+                "languageCode" : "sv_SE",
+                "speechContexts" : [
+                    {
+                        "phrases" : [
+                            "$FULLPHONENUM"
+                        ],
+                        "boost" : 1
+                    }
+                ],
+                "diarizationConfig": {
+                    "enableSpeakerDiarization": false,
+                    "minSpeakerCount": 2
+                },
+                "adaptation": {
+                    "phraseSets": [
+                        {
+                          "name": "phraseSets1",
+                          "phrases": [
+                            {
+                              "value": "PHRASE_XY",
+                              "boost": 23.0
+                            }
+                          ],
+                          "boost": 24.0
+                        }
+                    ],
+                    "phraseSetReferences": ["foo", "bar"],
+                    "customClasses": [
+                        {
+                          "name": "customClasses1",
+                          "customClassId": "customClasses1ID1",
+                          "items": [
+                            {
+                              "value": "customClassItem1"
+                            }
+                          ]
+                        }
+                    ]
+                }
+            }
+            "#;
+        let recognition_config = deserialize_recognition_config(json_str).unwrap();
+        let recognition_config_grpc: GrpcRecognitionConfig = recognition_config.into();
+        // in the listing below speechContexts WILL contain boosts since this is supported
+        // in v1p1beta1 GRPC API
+        // diarization_config will be none since we do not support it yet for v1p1beta1
+        // adaptation element will be present as well
+        println!(
+            "recognition_config_grpc(v1p1beta1) {:#?}",
+            recognition_config_grpc
+        );
+    }
 }

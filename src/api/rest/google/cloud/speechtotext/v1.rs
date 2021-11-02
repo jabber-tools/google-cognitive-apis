@@ -351,7 +351,7 @@ pub fn deserialize_recognition_config(json_str: &str) -> Result<RecognitionConfi
         Err(err) => {
             let err_path = err.path().to_string();
             Err(Error::new(format!(
-                "Error when deserializing speech recognition config at path: {}. Full error: {}",
+                "Error when deserializing speech recognition config (v1) at path: {}. Full error: {}",
                 err_path,
                 err.to_string()
             )))
@@ -450,6 +450,8 @@ mod tests {
             "#;
         let recognition_config = deserialize_recognition_config(json_str).unwrap();
         let recognition_config_grpc: GrpcRecognitionConfig = recognition_config.into();
-        println!("recognition_config_grpc {:#?}", recognition_config_grpc);
+        // in the listing below speechContexts WILL NOT contain boosts since this is not supported
+        // in v1 GRPC API
+        println!("recognition_config_grpc(v1) {:#?}", recognition_config_grpc);
     }
 }
