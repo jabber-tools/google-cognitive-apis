@@ -5,7 +5,7 @@ use crate::CERTIFICATES;
 use gouth::Builder;
 use std::sync::Arc;
 use tonic::{
-    metadata::{Ascii, AsciiMetadataValue, MetadataValue},
+    metadata::{Ascii, MetadataValue},
     service::Interceptor,
     transport::{Certificate, Channel, ClientTlsConfig},
     Status,
@@ -22,7 +22,7 @@ pub fn new_interceptor(token_header_val: Arc<String>) -> TokenInterceptor {
     TokenInterceptor::new(token_header_val)
 }
 impl Interceptor for TokenInterceptor {
-    fn call(&mut self, mut request: tonic::Request<()>) -> Result<tonic::Request<()>, Status> {
+    fn call(&mut self, request: tonic::Request<()>) -> Result<tonic::Request<()>, Status> {
         let mut req = request;
         let meta_result =
             MetadataValue::<Ascii>::from_str(&self.0);
