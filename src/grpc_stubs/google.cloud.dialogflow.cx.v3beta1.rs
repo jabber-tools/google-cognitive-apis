@@ -1014,18 +1014,18 @@ pub mod pages_client {
     impl<T> PagesClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
-        T::ResponseBody: Body + HttpBody + Send + 'static,
+        T::ResponseBody: Body + Send + Sync + 'static,
         T::Error: Into<StdError>,
-        <T::ResponseBody as HttpBody>::Error: Into<StdError> + Send,
+        <T::ResponseBody as Body>::Error: Into<StdError>,
     {
         pub fn new(inner: T) -> Self {
             let inner = tonic::client::Grpc::new(inner);
             Self { inner }
         }
-        pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
-            let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
-            Self { inner }
-        }
+        // pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
+        //     let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
+        //     Self { inner }
+        // }
         #[doc = " Returns the list of all pages in the specified flow."]
         pub async fn list_pages(
             &mut self,
@@ -1521,18 +1521,18 @@ pub mod flows_client {
     impl<T> FlowsClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
-        T::ResponseBody: Body + HttpBody + Send + 'static,
+        T::ResponseBody: Body + Send + Sync + 'static,
         T::Error: Into<StdError>,
-        <T::ResponseBody as HttpBody>::Error: Into<StdError> + Send,
+        <T::ResponseBody as Body>::Error: Into<StdError>,
     {
         pub fn new(inner: T) -> Self {
             let inner = tonic::client::Grpc::new(inner);
             Self { inner }
         }
-        pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
-            let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
-            Self { inner }
-        }
+        // pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
+        //     let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
+        //     Self { inner }
+        // }
         #[doc = " Creates a flow in the specified agent."]
         pub async fn create_flow(
             &mut self,
@@ -1976,18 +1976,18 @@ pub mod intents_client {
     impl<T> IntentsClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
-        T::ResponseBody: Body + HttpBody + Send + 'static,
+        T::ResponseBody: Body + Send + Sync + 'static,
         T::Error: Into<StdError>,
-        <T::ResponseBody as HttpBody>::Error: Into<StdError> + Send,
+        <T::ResponseBody as Body>::Error: Into<StdError>,
     {
         pub fn new(inner: T) -> Self {
             let inner = tonic::client::Grpc::new(inner);
             Self { inner }
         }
-        pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
-            let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
-            Self { inner }
-        }
+        // pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
+        //     let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
+        //     Self { inner }
+        // }
         #[doc = " Returns the list of all intents in the specified agent."]
         pub async fn list_intents(
             &mut self,
@@ -2369,18 +2369,18 @@ pub mod entity_types_client {
     impl<T> EntityTypesClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
-        T::ResponseBody: Body + HttpBody + Send + 'static,
+        T::ResponseBody: Body + Send + Sync + 'static,
         T::Error: Into<StdError>,
-        <T::ResponseBody as HttpBody>::Error: Into<StdError> + Send,
+        <T::ResponseBody as Body>::Error: Into<StdError>,
     {
         pub fn new(inner: T) -> Self {
             let inner = tonic::client::Grpc::new(inner);
             Self { inner }
         }
-        pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
-            let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
-            Self { inner }
-        }
+        // pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
+        //     let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
+        //     Self { inner }
+        // }
         #[doc = " Returns the list of all entity types in the specified agent."]
         pub async fn list_entity_types(
             &mut self,
@@ -2645,18 +2645,18 @@ pub mod session_entity_types_client {
     impl<T> SessionEntityTypesClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
-        T::ResponseBody: Body + HttpBody + Send + 'static,
+        T::ResponseBody: Body + Send + Sync + 'static,
         T::Error: Into<StdError>,
-        <T::ResponseBody as HttpBody>::Error: Into<StdError> + Send,
+        <T::ResponseBody as Body>::Error: Into<StdError>,
     {
         pub fn new(inner: T) -> Self {
             let inner = tonic::client::Grpc::new(inner);
             Self { inner }
         }
-        pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
-            let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
-            Self { inner }
-        }
+        // pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
+        //     let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
+        //     Self { inner }
+        // }
         #[doc = " Returns the list of all session entity types in the specified session."]
         pub async fn list_session_entity_types(
             &mut self,
@@ -3477,18 +3477,18 @@ pub mod sessions_client {
     impl<T> SessionsClient<T>
     where
         T: tonic::client::GrpcService<tonic::body::BoxBody>,
-        T::ResponseBody: Body + HttpBody + Send + 'static,
+        T::ResponseBody: Body + Send + Sync + 'static,
         T::Error: Into<StdError>,
-        <T::ResponseBody as HttpBody>::Error: Into<StdError> + Send,
+        <T::ResponseBody as Body>::Error: Into<StdError>,
     {
         pub fn new(inner: T) -> Self {
             let inner = tonic::client::Grpc::new(inner);
             Self { inner }
         }
-        pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
-            let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
-            Self { inner }
-        }
+        // pub fn with_interceptor(inner: T, interceptor: impl Into<tonic::Interceptor>) -> Self {
+        //     let inner = tonic::client::Grpc::with_interceptor(inner, interceptor);
+        //     Self { inner }
+        // }
         #[doc = " Processes a natural language query and returns structured, actionable data"]
         #[doc = " as a result. This method is not idempotent, because it may cause session"]
         #[doc = " entity types to be updated, which in turn might affect results of future"]

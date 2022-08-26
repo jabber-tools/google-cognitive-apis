@@ -13,7 +13,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     tonic_build::configure()
         .build_client(true)
         .build_server(false)
-        .format(true)
+        // .format(true)
         .out_dir("src/grpc_stubs")
         .compile(
             &[
@@ -33,7 +33,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     tonic_build::configure()
         .build_client(true)
         .build_server(false)
-        .format(true)
+        // .format(true)
         .out_dir("src/grpc_stubs/dialogflow_cx")
         .compile(
             &[

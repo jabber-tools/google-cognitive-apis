@@ -1,12 +1,12 @@
 /// Defines the HTTP configuration for an API service. It contains a list of
-/// [HttpRule][google.api.HttpRule], each specifying the mapping of an RPC method
+/// \[HttpRule][google.api.HttpRule\], each specifying the mapping of an RPC method
 /// to one or more HTTP REST API methods.
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct Http {
     /// A list of HTTP configuration rules that apply to individual API methods.
     ///
     /// **NOTE:** All service configuration rules follow "last one wins" order.
-    #[prost(message, repeated, tag = "1")]
+    #[prost(message, repeated, tag="1")]
     pub rules: ::prost::alloc::vec::Vec<HttpRule>,
     /// When set to true, URL path parameters will be fully URI-decoded except in
     /// cases of single segment matches in reserved expansion, where "%2F" will be
@@ -14,7 +14,7 @@ pub struct Http {
     ///
     /// The default behavior is to not decode RFC 6570 reserved characters in multi
     /// segment matches.
-    #[prost(bool, tag = "2")]
+    #[prost(bool, tag="2")]
     pub fully_decode_reserved_expansion: bool,
 }
 /// # gRPC Transcoding
@@ -22,10 +22,10 @@ pub struct Http {
 /// gRPC Transcoding is a feature for mapping between a gRPC method and one or
 /// more HTTP REST endpoints. It allows developers to build a single API service
 /// that supports both gRPC APIs and REST APIs. Many systems, including [Google
-/// APIs](https://github.com/googleapis/googleapis),
-/// [Cloud Endpoints](https://cloud.google.com/endpoints), [gRPC
-/// Gateway](https://github.com/grpc-ecosystem/grpc-gateway),
-/// and [Envoy](https://github.com/envoyproxy/envoy) proxy support this feature
+/// APIs](<https://github.com/googleapis/googleapis>),
+/// [Cloud Endpoints](<https://cloud.google.com/endpoints>), [gRPC
+/// Gateway](<https://github.com/grpc-ecosystem/grpc-gateway>),
+/// and \[Envoy\](<https://github.com/envoyproxy/envoy>) proxy support this feature
 /// and use it for large scale production services.
 ///
 /// `HttpRule` defines the schema of the gRPC/REST mapping. The mapping specifies
@@ -42,19 +42,19 @@ pub struct Http {
 ///
 /// Example:
 ///
-///     service Messaging {
-///       rpc GetMessage(GetMessageRequest) returns (Message) {
-///         option (google.api.http) = {
-///             get: "/v1/{name=messages/*}"
-///         };
-///       }
-///     }
-///     message GetMessageRequest {
-///       string name = 1; // Mapped to URL path.
-///     }
-///     message Message {
-///       string text = 1; // The resource content.
-///     }
+///      service Messaging {
+///        rpc GetMessage(GetMessageRequest) returns (Message) {
+///          option (google.api.http) = {
+///              get: "/v1/{name=messages/*}"
+///          };
+///        }
+///      }
+///      message GetMessageRequest {
+///        string name = 1; // Mapped to URL path.
+///      }
+///      message Message {
+///        string text = 1; // The resource content.
+///      }
 ///
 /// This enables an HTTP REST to gRPC mapping as below:
 ///
@@ -66,21 +66,21 @@ pub struct Http {
 /// automatically become HTTP query parameters if there is no HTTP request body.
 /// For example:
 ///
-///     service Messaging {
-///       rpc GetMessage(GetMessageRequest) returns (Message) {
-///         option (google.api.http) = {
-///             get:"/v1/messages/{message_id}"
-///         };
-///       }
-///     }
-///     message GetMessageRequest {
-///       message SubMessage {
-///         string subfield = 1;
-///       }
-///       string message_id = 1; // Mapped to URL path.
-///       int64 revision = 2;    // Mapped to URL query parameter `revision`.
-///       SubMessage sub = 3;    // Mapped to URL query parameter `sub.subfield`.
-///     }
+///      service Messaging {
+///        rpc GetMessage(GetMessageRequest) returns (Message) {
+///          option (google.api.http) = {
+///              get:"/v1/messages/{message_id}"
+///          };
+///        }
+///      }
+///      message GetMessageRequest {
+///        message SubMessage {
+///          string subfield = 1;
+///        }
+///        string message_id = 1; // Mapped to URL path.
+///        int64 revision = 2;    // Mapped to URL query parameter `revision`.
+///        SubMessage sub = 3;    // Mapped to URL query parameter `sub.subfield`.
+///      }
 ///
 /// This enables a HTTP JSON to RPC mapping as below:
 ///
@@ -101,18 +101,18 @@ pub struct Http {
 /// specifies the mapping. Consider a REST update method on the
 /// message resource collection:
 ///
-///     service Messaging {
-///       rpc UpdateMessage(UpdateMessageRequest) returns (Message) {
-///         option (google.api.http) = {
-///           patch: "/v1/messages/{message_id}"
-///           body: "message"
-///         };
-///       }
-///     }
-///     message UpdateMessageRequest {
-///       string message_id = 1; // mapped to the URL
-///       Message message = 2;   // mapped to the body
-///     }
+///      service Messaging {
+///        rpc UpdateMessage(UpdateMessageRequest) returns (Message) {
+///          option (google.api.http) = {
+///            patch: "/v1/messages/{message_id}"
+///            body: "message"
+///          };
+///        }
+///      }
+///      message UpdateMessageRequest {
+///        string message_id = 1; // mapped to the URL
+///        Message message = 2;   // mapped to the body
+///      }
 ///
 /// The following HTTP JSON to RPC mapping is enabled, where the
 /// representation of the JSON in the request body is determined by
@@ -128,18 +128,18 @@ pub struct Http {
 /// request body.  This enables the following alternative definition of
 /// the update method:
 ///
-///     service Messaging {
-///       rpc UpdateMessage(Message) returns (Message) {
-///         option (google.api.http) = {
-///           patch: "/v1/messages/{message_id}"
-///           body: "*"
-///         };
-///       }
-///     }
-///     message Message {
-///       string message_id = 1;
-///       string text = 2;
-///     }
+///      service Messaging {
+///        rpc UpdateMessage(Message) returns (Message) {
+///          option (google.api.http) = {
+///            patch: "/v1/messages/{message_id}"
+///            body: "*"
+///          };
+///        }
+///      }
+///      message Message {
+///        string message_id = 1;
+///        string text = 2;
+///      }
 ///
 ///
 /// The following HTTP JSON to RPC mapping is enabled:
@@ -158,20 +158,20 @@ pub struct Http {
 /// It is possible to define multiple HTTP methods for one RPC by using
 /// the `additional_bindings` option. Example:
 ///
-///     service Messaging {
-///       rpc GetMessage(GetMessageRequest) returns (Message) {
-///         option (google.api.http) = {
-///           get: "/v1/messages/{message_id}"
-///           additional_bindings {
-///             get: "/v1/users/{user_id}/messages/{message_id}"
-///           }
-///         };
-///       }
-///     }
-///     message GetMessageRequest {
-///       string message_id = 1;
-///       string user_id = 2;
-///     }
+///      service Messaging {
+///        rpc GetMessage(GetMessageRequest) returns (Message) {
+///          option (google.api.http) = {
+///            get: "/v1/messages/{message_id}"
+///            additional_bindings {
+///              get: "/v1/users/{user_id}/messages/{message_id}"
+///            }
+///          };
+///        }
+///      }
+///      message GetMessageRequest {
+///        string message_id = 1;
+///        string user_id = 2;
+///      }
 ///
 /// This enables the following two alternative HTTP JSON to RPC mappings:
 ///
@@ -184,27 +184,27 @@ pub struct Http {
 /// ## Rules for HTTP mapping
 ///
 /// 1. Leaf request fields (recursive expansion nested messages in the request
-///    message) are classified into three categories:
-///    - Fields referred by the path template. They are passed via the URL path.
-///    - Fields referred by the [HttpRule.body][google.api.HttpRule.body]. They are passed via the HTTP
-///      request body.
-///    - All other fields are passed via the URL query parameters, and the
-///      parameter name is the field path in the request message. A repeated
-///      field can be represented as multiple query parameters under the same
-///      name.
-///  2. If [HttpRule.body][google.api.HttpRule.body] is "*", there is no URL query parameter, all fields
-///     are passed via URL path and HTTP request body.
-///  3. If [HttpRule.body][google.api.HttpRule.body] is omitted, there is no HTTP request body, all
-///     fields are passed via URL path and URL query parameters.
+///     message) are classified into three categories:
+///     - Fields referred by the path template. They are passed via the URL path.
+///     - Fields referred by the \[HttpRule.body][google.api.HttpRule.body\]. They are passed via the HTTP
+///       request body.
+///     - All other fields are passed via the URL query parameters, and the
+///       parameter name is the field path in the request message. A repeated
+///       field can be represented as multiple query parameters under the same
+///       name.
+///   2. If \[HttpRule.body][google.api.HttpRule.body\] is "*", there is no URL query parameter, all fields
+///      are passed via URL path and HTTP request body.
+///   3. If \[HttpRule.body][google.api.HttpRule.body\] is omitted, there is no HTTP request body, all
+///      fields are passed via URL path and URL query parameters.
 ///
 /// ### Path template syntax
 ///
-///     Template = "/" Segments [ Verb ] ;
-///     Segments = Segment { "/" Segment } ;
-///     Segment  = "*" | "**" | LITERAL | Variable ;
-///     Variable = "{" FieldPath [ "=" Segments ] "}" ;
-///     FieldPath = IDENT { "." IDENT } ;
-///     Verb     = ":" LITERAL ;
+///      Template = "/" Segments [ Verb ] ;
+///      Segments = Segment { "/" Segment } ;
+///      Segment  = "*" | "**" | LITERAL | Variable ;
+///      Variable = "{" FieldPath [ "=" Segments ] "}" ;
+///      FieldPath = IDENT { "." IDENT } ;
+///      Verb     = ":" LITERAL ;
 ///
 /// The syntax `*` matches a single URL path segment. The syntax `**` matches
 /// zero or more URL path segments, which must be the last part of the URL path
@@ -221,19 +221,19 @@ pub struct Http {
 ///
 /// If a variable contains exactly one path segment, such as `"{var}"` or
 /// `"{var=*}"`, when such a variable is expanded into a URL path on the client
-/// side, all characters except `[-_.~0-9a-zA-Z]` are percent-encoded. The
+/// side, all characters except `\[-_.~0-9a-zA-Z\]` are percent-encoded. The
 /// server side does the reverse decoding. Such variables show up in the
 /// [Discovery
-/// Document](https://developers.google.com/discovery/v1/reference/apis) as
+/// Document](<https://developers.google.com/discovery/v1/reference/apis>) as
 /// `{var}`.
 ///
 /// If a variable contains multiple path segments, such as `"{var=foo/*}"`
 /// or `"{var=**}"`, when such a variable is expanded into a URL path on the
-/// client side, all characters except `[-_.~/0-9a-zA-Z]` are percent-encoded.
+/// client side, all characters except `\[-_.~/0-9a-zA-Z\]` are percent-encoded.
 /// The server side does the reverse decoding, except "%2F" and "%2f" are left
 /// unchanged. Such variables show up in the
 /// [Discovery
-/// Document](https://developers.google.com/discovery/v1/reference/apis) as
+/// Document](<https://developers.google.com/discovery/v1/reference/apis>) as
 /// `{+var}`.
 ///
 /// ## Using gRPC API Service Configuration
@@ -253,20 +253,20 @@ pub struct Http {
 ///
 /// Example:
 ///
-///     http:
-///       rules:
-///         # Selects a gRPC method and applies HttpRule to it.
-///         - selector: example.v1.Messaging.GetMessage
-///           get: /v1/messages/{message_id}/{sub.subfield}
+///      http:
+///        rules:
+///          # Selects a gRPC method and applies HttpRule to it.
+///          - selector: example.v1.Messaging.GetMessage
+///            get: /v1/messages/{message_id}/{sub.subfield}
 ///
 /// ## Special notes
 ///
 /// When gRPC Transcoding is used to map a gRPC to JSON REST endpoints, the
 /// proto to JSON conversion must follow the [proto3
-/// specification](https://developers.google.com/protocol-buffers/docs/proto3#json).
+/// specification](<https://developers.google.com/protocol-buffers/docs/proto3#json>).
 ///
 /// While the single segment variable follows the semantics of
-/// [RFC 6570](https://tools.ietf.org/html/rfc6570) Section 3.2.2 Simple String
+/// [RFC 6570](<https://tools.ietf.org/html/rfc6570>) Section 3.2.2 Simple String
 /// Expansion, the multi segment variable **does not** follow RFC 6570 Section
 /// 3.2.3 Reserved Expansion. The reason is that the Reserved Expansion
 /// does not expand special characters like `?` and `#`, which would lead
@@ -290,8 +290,8 @@ pub struct Http {
 pub struct HttpRule {
     /// Selects a method to which this rule applies.
     ///
-    /// Refer to [selector][google.api.DocumentationRule.selector] for syntax details.
-    #[prost(string, tag = "1")]
+    /// Refer to \[selector][google.api.DocumentationRule.selector\] for syntax details.
+    #[prost(string, tag="1")]
     pub selector: ::prost::alloc::string::String,
     /// The name of the request field whose value is mapped to the HTTP request
     /// body, or `*` for mapping all request fields not captured by the path
@@ -299,7 +299,7 @@ pub struct HttpRule {
     ///
     /// NOTE: the referred field must be present at the top-level of the request
     /// message type.
-    #[prost(string, tag = "7")]
+    #[prost(string, tag="7")]
     pub body: ::prost::alloc::string::String,
     /// Optional. The name of the response field whose value is mapped to the HTTP
     /// response body. When omitted, the entire response message will be used
@@ -307,17 +307,17 @@ pub struct HttpRule {
     ///
     /// NOTE: The referred field must be present at the top-level of the response
     /// message type.
-    #[prost(string, tag = "12")]
+    #[prost(string, tag="12")]
     pub response_body: ::prost::alloc::string::String,
     /// Additional HTTP bindings for the selector. Nested bindings must
     /// not contain an `additional_bindings` field themselves (that is,
     /// the nesting may only be one level deep).
-    #[prost(message, repeated, tag = "11")]
+    #[prost(message, repeated, tag="11")]
     pub additional_bindings: ::prost::alloc::vec::Vec<HttpRule>,
     /// Determines the URL pattern is matched by this rules. This pattern can be
     /// used with any of the {get|put|post|delete|patch} methods. A custom method
     /// can be defined using the 'custom' field.
-    #[prost(oneof = "http_rule::Pattern", tags = "2, 3, 4, 5, 6, 8")]
+    #[prost(oneof="http_rule::Pattern", tags="2, 3, 4, 5, 6, 8")]
     pub pattern: ::core::option::Option<http_rule::Pattern>,
 }
 /// Nested message and enum types in `HttpRule`.
@@ -329,25 +329,25 @@ pub mod http_rule {
     pub enum Pattern {
         /// Maps to HTTP GET. Used for listing and getting information about
         /// resources.
-        #[prost(string, tag = "2")]
+        #[prost(string, tag="2")]
         Get(::prost::alloc::string::String),
         /// Maps to HTTP PUT. Used for replacing a resource.
-        #[prost(string, tag = "3")]
+        #[prost(string, tag="3")]
         Put(::prost::alloc::string::String),
         /// Maps to HTTP POST. Used for creating a resource or performing an action.
-        #[prost(string, tag = "4")]
+        #[prost(string, tag="4")]
         Post(::prost::alloc::string::String),
         /// Maps to HTTP DELETE. Used for deleting a resource.
-        #[prost(string, tag = "5")]
+        #[prost(string, tag="5")]
         Delete(::prost::alloc::string::String),
         /// Maps to HTTP PATCH. Used for updating a resource.
-        #[prost(string, tag = "6")]
+        #[prost(string, tag="6")]
         Patch(::prost::alloc::string::String),
         /// The custom pattern is used for specifying an HTTP method that is not
         /// included in the `pattern` field, such as HEAD, or "*" to leave the
         /// HTTP method unspecified for this rule. The wild-card rule is useful
         /// for services that provide content to Web (HTML) clients.
-        #[prost(message, tag = "8")]
+        #[prost(message, tag="8")]
         Custom(super::CustomHttpPattern),
     }
 }
@@ -355,10 +355,10 @@ pub mod http_rule {
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct CustomHttpPattern {
     /// The name of this custom HTTP verb.
-    #[prost(string, tag = "1")]
+    #[prost(string, tag="1")]
     pub kind: ::prost::alloc::string::String,
     /// The path matched by this custom verb.
-    #[prost(string, tag = "2")]
+    #[prost(string, tag="2")]
     pub path: ::prost::alloc::string::String,
 }
 /// An indicator of the behavior of a given field (for example, that a field
@@ -399,6 +399,23 @@ pub enum FieldBehavior {
     /// provided. Additionally, the list's order may or may not be stable.
     UnorderedList = 6,
 }
+impl FieldBehavior {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            FieldBehavior::Unspecified => "FIELD_BEHAVIOR_UNSPECIFIED",
+            FieldBehavior::Optional => "OPTIONAL",
+            FieldBehavior::Required => "REQUIRED",
+            FieldBehavior::OutputOnly => "OUTPUT_ONLY",
+            FieldBehavior::InputOnly => "INPUT_ONLY",
+            FieldBehavior::Immutable => "IMMUTABLE",
+            FieldBehavior::UnorderedList => "UNORDERED_LIST",
+        }
+    }
+}
 /// A simple descriptor of a resource type.
 ///
 /// ResourceDescriptor annotates a resource message (either by means of a
@@ -407,106 +424,106 @@ pub enum FieldBehavior {
 ///
 /// Example:
 ///
-///     message Topic {
-///       // Indicates this message defines a resource schema.
-///       // Declares the resource type in the format of {service}/{kind}.
-///       // For Kubernetes resources, the format is {api group}/{kind}.
-///       option (google.api.resource) = {
-///         type: "pubsub.googleapis.com/Topic"
-///         name_descriptor: {
-///           pattern: "projects/{project}/topics/{topic}"
-///           parent_type: "cloudresourcemanager.googleapis.com/Project"
-///           parent_name_extractor: "projects/{project}"
-///         }
-///       };
-///     }
+///      message Topic {
+///        // Indicates this message defines a resource schema.
+///        // Declares the resource type in the format of {service}/{kind}.
+///        // For Kubernetes resources, the format is {api group}/{kind}.
+///        option (google.api.resource) = {
+///          type: "pubsub.googleapis.com/Topic"
+///          name_descriptor: {
+///            pattern: "projects/{project}/topics/{topic}"
+///            parent_type: "cloudresourcemanager.googleapis.com/Project"
+///            parent_name_extractor: "projects/{project}"
+///          }
+///        };
+///      }
 ///
 /// The ResourceDescriptor Yaml config will look like:
 ///
-///     resources:
-///     - type: "pubsub.googleapis.com/Topic"
-///       name_descriptor:
-///         - pattern: "projects/{project}/topics/{topic}"
-///           parent_type: "cloudresourcemanager.googleapis.com/Project"
-///           parent_name_extractor: "projects/{project}"
+///      resources:
+///      - type: "pubsub.googleapis.com/Topic"
+///        name_descriptor:
+///          - pattern: "projects/{project}/topics/{topic}"
+///            parent_type: "cloudresourcemanager.googleapis.com/Project"
+///            parent_name_extractor: "projects/{project}"
 ///
 /// Sometimes, resources have multiple patterns, typically because they can
 /// live under multiple parents.
 ///
 /// Example:
 ///
-///     message LogEntry {
-///       option (google.api.resource) = {
-///         type: "logging.googleapis.com/LogEntry"
-///         name_descriptor: {
-///           pattern: "projects/{project}/logs/{log}"
-///           parent_type: "cloudresourcemanager.googleapis.com/Project"
-///           parent_name_extractor: "projects/{project}"
-///         }
-///         name_descriptor: {
-///           pattern: "folders/{folder}/logs/{log}"
-///           parent_type: "cloudresourcemanager.googleapis.com/Folder"
-///           parent_name_extractor: "folders/{folder}"
-///         }
-///         name_descriptor: {
-///           pattern: "organizations/{organization}/logs/{log}"
-///           parent_type: "cloudresourcemanager.googleapis.com/Organization"
-///           parent_name_extractor: "organizations/{organization}"
-///         }
-///         name_descriptor: {
-///           pattern: "billingAccounts/{billing_account}/logs/{log}"
-///           parent_type: "billing.googleapis.com/BillingAccount"
-///           parent_name_extractor: "billingAccounts/{billing_account}"
-///         }
-///       };
-///     }
+///      message LogEntry {
+///        option (google.api.resource) = {
+///          type: "logging.googleapis.com/LogEntry"
+///          name_descriptor: {
+///            pattern: "projects/{project}/logs/{log}"
+///            parent_type: "cloudresourcemanager.googleapis.com/Project"
+///            parent_name_extractor: "projects/{project}"
+///          }
+///          name_descriptor: {
+///            pattern: "folders/{folder}/logs/{log}"
+///            parent_type: "cloudresourcemanager.googleapis.com/Folder"
+///            parent_name_extractor: "folders/{folder}"
+///          }
+///          name_descriptor: {
+///            pattern: "organizations/{organization}/logs/{log}"
+///            parent_type: "cloudresourcemanager.googleapis.com/Organization"
+///            parent_name_extractor: "organizations/{organization}"
+///          }
+///          name_descriptor: {
+///            pattern: "billingAccounts/{billing_account}/logs/{log}"
+///            parent_type: "billing.googleapis.com/BillingAccount"
+///            parent_name_extractor: "billingAccounts/{billing_account}"
+///          }
+///        };
+///      }
 ///
 /// The ResourceDescriptor Yaml config will look like:
 ///
-///     resources:
-///     - type: 'logging.googleapis.com/LogEntry'
-///       name_descriptor:
-///         - pattern: "projects/{project}/logs/{log}"
-///           parent_type: "cloudresourcemanager.googleapis.com/Project"
-///           parent_name_extractor: "projects/{project}"
-///         - pattern: "folders/{folder}/logs/{log}"
-///           parent_type: "cloudresourcemanager.googleapis.com/Folder"
-///           parent_name_extractor: "folders/{folder}"
-///         - pattern: "organizations/{organization}/logs/{log}"
-///           parent_type: "cloudresourcemanager.googleapis.com/Organization"
-///           parent_name_extractor: "organizations/{organization}"
-///         - pattern: "billingAccounts/{billing_account}/logs/{log}"
-///           parent_type: "billing.googleapis.com/BillingAccount"
-///           parent_name_extractor: "billingAccounts/{billing_account}"
+///      resources:
+///      - type: 'logging.googleapis.com/LogEntry'
+///        name_descriptor:
+///          - pattern: "projects/{project}/logs/{log}"
+///            parent_type: "cloudresourcemanager.googleapis.com/Project"
+///            parent_name_extractor: "projects/{project}"
+///          - pattern: "folders/{folder}/logs/{log}"
+///            parent_type: "cloudresourcemanager.googleapis.com/Folder"
+///            parent_name_extractor: "folders/{folder}"
+///          - pattern: "organizations/{organization}/logs/{log}"
+///            parent_type: "cloudresourcemanager.googleapis.com/Organization"
+///            parent_name_extractor: "organizations/{organization}"
+///          - pattern: "billingAccounts/{billing_account}/logs/{log}"
+///            parent_type: "billing.googleapis.com/BillingAccount"
+///            parent_name_extractor: "billingAccounts/{billing_account}"
 ///
 /// For flexible resources, the resource name doesn't contain parent names, but
 /// the resource itself has parents for policy evaluation.
 ///
 /// Example:
 ///
-///     message Shelf {
-///       option (google.api.resource) = {
-///         type: "library.googleapis.com/Shelf"
-///         name_descriptor: {
-///           pattern: "shelves/{shelf}"
-///           parent_type: "cloudresourcemanager.googleapis.com/Project"
-///         }
-///         name_descriptor: {
-///           pattern: "shelves/{shelf}"
-///           parent_type: "cloudresourcemanager.googleapis.com/Folder"
-///         }
-///       };
-///     }
+///      message Shelf {
+///        option (google.api.resource) = {
+///          type: "library.googleapis.com/Shelf"
+///          name_descriptor: {
+///            pattern: "shelves/{shelf}"
+///            parent_type: "cloudresourcemanager.googleapis.com/Project"
+///          }
+///          name_descriptor: {
+///            pattern: "shelves/{shelf}"
+///            parent_type: "cloudresourcemanager.googleapis.com/Folder"
+///          }
+///        };
+///      }
 ///
 /// The ResourceDescriptor Yaml config will look like:
 ///
-///     resources:
-///     - type: 'library.googleapis.com/Shelf'
-///       name_descriptor:
-///         - pattern: "shelves/{shelf}"
-///           parent_type: "cloudresourcemanager.googleapis.com/Project"
-///         - pattern: "shelves/{shelf}"
-///           parent_type: "cloudresourcemanager.googleapis.com/Folder"
+///      resources:
+///      - type: 'library.googleapis.com/Shelf'
+///        name_descriptor:
+///          - pattern: "shelves/{shelf}"
+///            parent_type: "cloudresourcemanager.googleapis.com/Project"
+///          - pattern: "shelves/{shelf}"
+///            parent_type: "cloudresourcemanager.googleapis.com/Folder"
 #[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ResourceDescriptor {
     /// The resource type. It must be in the format of
@@ -516,10 +533,10 @@ pub struct ResourceDescriptor {
     /// Example: `storage.googleapis.com/Bucket`
     ///
     /// The value of the resource_type_kind must follow the regular expression
-    /// /[A-Za-z][a-zA-Z0-9]+/. It should start with an upper case character and
+    /// /\[A-Za-z][a-zA-Z0-9\]+/. It should start with an upper case character and
     /// should use PascalCase (UpperCamelCase). The maximum number of
     /// characters allowed for the `resource_type_kind` is 100.
-    #[prost(string, tag = "1")]
+    #[prost(string, tag="1")]
     pub r#type: ::prost::alloc::string::String,
     /// Optional. The relative resource name pattern associated with this resource
     /// type. The DNS prefix of the full resource name shouldn't be specified here.
@@ -527,61 +544,61 @@ pub struct ResourceDescriptor {
     /// The path pattern must follow the syntax, which aligns with HTTP binding
     /// syntax:
     ///
-    ///     Template = Segment { "/" Segment } ;
-    ///     Segment = LITERAL | Variable ;
-    ///     Variable = "{" LITERAL "}" ;
+    ///      Template = Segment { "/" Segment } ;
+    ///      Segment = LITERAL | Variable ;
+    ///      Variable = "{" LITERAL "}" ;
     ///
     /// Examples:
     ///
-    ///     - "projects/{project}/topics/{topic}"
-    ///     - "projects/{project}/knowledgeBases/{knowledge_base}"
+    ///      - "projects/{project}/topics/{topic}"
+    ///      - "projects/{project}/knowledgeBases/{knowledge_base}"
     ///
     /// The components in braces correspond to the IDs for each resource in the
     /// hierarchy. It is expected that, if multiple patterns are provided,
     /// the same component name (e.g. "project") refers to IDs of the same
     /// type of resource.
-    #[prost(string, repeated, tag = "2")]
+    #[prost(string, repeated, tag="2")]
     pub pattern: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
     /// Optional. The field on the resource that designates the resource name
     /// field. If omitted, this is assumed to be "name".
-    #[prost(string, tag = "3")]
+    #[prost(string, tag="3")]
     pub name_field: ::prost::alloc::string::String,
     /// Optional. The historical or future-looking state of the resource pattern.
     ///
     /// Example:
     ///
-    ///     // The InspectTemplate message originally only supported resource
-    ///     // names with organization, and project was added later.
-    ///     message InspectTemplate {
-    ///       option (google.api.resource) = {
-    ///         type: "dlp.googleapis.com/InspectTemplate"
-    ///         pattern:
-    ///         "organizations/{organization}/inspectTemplates/{inspect_template}"
-    ///         pattern: "projects/{project}/inspectTemplates/{inspect_template}"
-    ///         history: ORIGINALLY_SINGLE_PATTERN
-    ///       };
-    ///     }
-    #[prost(enumeration = "resource_descriptor::History", tag = "4")]
+    ///      // The InspectTemplate message originally only supported resource
+    ///      // names with organization, and project was added later.
+    ///      message InspectTemplate {
+    ///        option (google.api.resource) = {
+    ///          type: "dlp.googleapis.com/InspectTemplate"
+    ///          pattern:
+    ///          "organizations/{organization}/inspectTemplates/{inspect_template}"
+    ///          pattern: "projects/{project}/inspectTemplates/{inspect_template}"
+    ///          history: ORIGINALLY_SINGLE_PATTERN
+    ///        };
+    ///      }
+    #[prost(enumeration="resource_descriptor::History", tag="4")]
     pub history: i32,
     /// The plural name used in the resource name and permission names, such as
     /// 'projects' for the resource name of 'projects/{project}' and the permission
     /// name of 'cloudresourcemanager.googleapis.com/projects.get'. It is the same
     /// concept of the `plural` field in k8s CRD spec
-    /// https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/
+    /// <https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/>
     ///
     /// Note: The plural form is required even for singleton resources. See
-    /// https://aip.dev/156
-    #[prost(string, tag = "5")]
+    /// <https://aip.dev/156>
+    #[prost(string, tag="5")]
     pub plural: ::prost::alloc::string::String,
     /// The same concept of the `singular` field in k8s CRD spec
-    /// https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/
+    /// <https://kubernetes.io/docs/tasks/access-kubernetes-api/custom-resources/custom-resource-definitions/>
     /// Such as "project" for the `resourcemanager.googleapis.com/Project` type.
-    #[prost(string, tag = "6")]
+    #[prost(string, tag="6")]
     pub singular: ::prost::alloc::string::String,
     /// Style flag(s) for this resource.
     /// These indicate that a resource is expected to conform to a given
     /// style. See the specific style flags for additional information.
-    #[prost(enumeration = "resource_descriptor::Style", repeated, tag = "10")]
+    #[prost(enumeration="resource_descriptor::Style", repeated, tag="10")]
     pub style: ::prost::alloc::vec::Vec<i32>,
 }
 /// Nested message and enum types in `ResourceDescriptor`.
@@ -601,6 +618,19 @@ pub mod resource_descriptor {
         /// that from being necessary once there are multiple patterns.)
         FutureMultiPattern = 2,
     }
+    impl History {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                History::Unspecified => "HISTORY_UNSPECIFIED",
+                History::OriginallySinglePattern => "ORIGINALLY_SINGLE_PATTERN",
+                History::FutureMultiPattern => "FUTURE_MULTI_PATTERN",
+            }
+        }
+    }
     /// A flag representing a specific style that a resource claims to conform to.
     #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
     #[repr(i32)]
@@ -617,6 +647,18 @@ pub mod resource_descriptor {
         /// additional checks.
         DeclarativeFriendly = 1,
     }
+    impl Style {
+        /// String value of the enum field names used in the ProtoBuf definition.
+        ///
+        /// The values are not transformed in any way and thus are considered stable
+        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+        pub fn as_str_name(&self) -> &'static str {
+            match self {
+                Style::Unspecified => "STYLE_UNSPECIFIED",
+                Style::DeclarativeFriendly => "DECLARATIVE_FRIENDLY",
+            }
+        }
+    }
 }
 /// Defines a proto annotation that describes a string field that refers to
 /// an API resource.
@@ -626,23 +668,23 @@ pub struct ResourceReference {
     ///
     /// Example:
     ///
-    ///     message Subscription {
-    ///       string topic = 2 [(google.api.resource_reference) = {
-    ///         type: "pubsub.googleapis.com/Topic"
-    ///       }];
-    ///     }
+    ///      message Subscription {
+    ///        string topic = 2 [(google.api.resource_reference) = {
+    ///          type: "pubsub.googleapis.com/Topic"
+    ///        }];
+    ///      }
     ///
     /// Occasionally, a field may reference an arbitrary resource. In this case,
     /// APIs use the special value * in their resource reference.
     ///
     /// Example:
     ///
-    ///     message GetIamPolicyRequest {
-    ///       string resource = 2 [(google.api.resource_reference) = {
-    ///         type: "*"
-    ///       }];
-    ///     }
-    #[prost(string, tag = "1")]
+    ///      message GetIamPolicyRequest {
+    ///        string resource = 2 [(google.api.resource_reference) = {
+    ///          type: "*"
+    ///        }];
+    ///      }
+    #[prost(string, tag="1")]
     pub r#type: ::prost::alloc::string::String,
     /// The resource type of a child collection that the annotated field
     /// references. This is useful for annotating the `parent` field that
@@ -650,11 +692,11 @@ pub struct ResourceReference {
     ///
     /// Example:
     ///
-    ///     message ListLogEntriesRequest {
-    ///       string parent = 1 [(google.api.resource_reference) = {
-    ///         child_type: "logging.googleapis.com/LogEntry"
-    ///       };
-    ///     }
-    #[prost(string, tag = "2")]
+    ///      message ListLogEntriesRequest {
+    ///        string parent = 1 [(google.api.resource_reference) = {
+    ///          child_type: "logging.googleapis.com/LogEntry"
+    ///        };
+    ///      }
+    #[prost(string, tag="2")]
     pub child_type: ::prost::alloc::string::String,
 }
