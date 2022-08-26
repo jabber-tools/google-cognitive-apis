@@ -12,7 +12,7 @@ use tonic::{
 };
 
 #[derive(Clone)]
-pub(crate) struct TokenInterceptor(Arc<String>);
+pub struct TokenInterceptor(Arc<String>);
 impl TokenInterceptor {
     fn new(token_header_val: Arc<String>) -> TokenInterceptor {
         TokenInterceptor(token_header_val)
