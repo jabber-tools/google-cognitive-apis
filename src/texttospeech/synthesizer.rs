@@ -3,8 +3,9 @@ use crate::api::grpc::google::cloud::texttospeech::v1::{
     text_to_speech_client::TextToSpeechClient, ListVoicesRequest, ListVoicesResponse,
     SynthesizeSpeechRequest, SynthesizeSpeechResponse,
 };
-use crate::common::{get_token, new_grpc_channel, new_interceptor};
+use crate::common::{get_token, new_grpc_channel, new_interceptor, TokenInterceptor};
 use crate::errors::Result;
+use tonic::codegen::InterceptedService;
 use tonic::transport::Channel;
 use tonic::Response as TonicResponse;
 
@@ -12,7 +13,9 @@ use tonic::Response as TonicResponse;
 #[derive(Debug, Clone)]
 pub struct Synthesizer {
     /// underlying gRPC Tonic text-to-speech client
-    text_to_speech_client: TextToSpeechClient<Channel>,
+    // text_to_speech_client: TextToSpeechClient<Channel>,
+    text_to_speech_client: TextToSpeechClient<InterceptedService<Channel, TokenInterceptor>>
+
 }
 
 impl Synthesizer {
@@ -30,8 +33,8 @@ impl Synthesizer {
 
         let token_header_val = get_token(google_credentials)?;
 
-        let text_to_speech_client: TextToSpeechClient<Channel> =
-            TextToSpeechClient::with_interceptor(channel, new_interceptor(token_header_val)?);
+        let text_to_speech_client =
+            TextToSpeechClient::with_interceptor(channel, new_interceptor(token_header_val));
 
         Ok(Synthesizer {
             text_to_speech_client,
