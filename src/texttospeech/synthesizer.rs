@@ -14,8 +14,7 @@ use tonic::Response as TonicResponse;
 pub struct Synthesizer {
     /// underlying gRPC Tonic text-to-speech client
     // text_to_speech_client: TextToSpeechClient<Channel>,
-    text_to_speech_client: TextToSpeechClient<InterceptedService<Channel, TokenInterceptor>>
-
+    text_to_speech_client: TextToSpeechClient<InterceptedService<Channel, TokenInterceptor>>,
 }
 
 impl Synthesizer {

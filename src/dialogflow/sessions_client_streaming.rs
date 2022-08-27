@@ -12,10 +12,10 @@ use crate::errors::Result;
 use async_stream::try_stream;
 use futures_core::stream::Stream;
 use log::*;
-use tonic::codegen::InterceptedService;
 use std::result::Result as StdResult;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
+use tonic::codegen::InterceptedService;
 use tonic::Response as TonicResponse;
 use tonic::Status as TonicStatus;
 use tonic::{transport::Channel, Streaming};
@@ -26,7 +26,6 @@ use tonic::{transport::Channel, Streaming};
 pub struct SessionsClient {
     /// internal GRPC dialogflow sessions client
     sessions_client: GrpcSessionsClient<InterceptedService<Channel, TokenInterceptor>>,
-
 
     /// channel for sending audio data
     audio_sender: Option<mpsc::Sender<StreamingDetectIntentRequest>>,

@@ -21,7 +21,6 @@ pub struct SessionsClient {
     /// internal GRPC dialogflow sessions client
     sessions_client: GrpcSessionsClient<InterceptedService<Channel, TokenInterceptor>>,
 
-
     /// channel for sending audio data
     audio_sender: Option<mpsc::Sender<StreamingDetectIntentRequest>>,
 

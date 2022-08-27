@@ -15,13 +15,13 @@ use async_stream::try_stream;
 use futures_core::stream::Stream;
 use log::*;
 use prost::Message;
-use tonic::codegen::InterceptedService;
 use std::io::Cursor;
 use std::result::Result as StdResult;
 use std::time::Duration;
 use tokio::sync::mpsc;
 use tokio::time::sleep;
 use tokio_stream::wrappers::ReceiverStream;
+use tonic::codegen::InterceptedService;
 use tonic::Response as TonicResponse;
 use tonic::Status as TonicStatus;
 use tonic::{transport::Channel, Response as GrpcResponse, Streaming};
@@ -67,7 +67,7 @@ impl Recognizer {
 
         let token_header_val = get_token(google_credentials)?;
 
-        let speech_client  =
+        let speech_client =
             SpeechClient::with_interceptor(channel, new_interceptor(token_header_val));
 
         let (audio_sender, audio_receiver) =
