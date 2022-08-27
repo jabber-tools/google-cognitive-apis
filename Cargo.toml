@@ -19,9 +19,9 @@ documentation = "https://docs.rs/google-cognitive-apis/0.1.4"
 prost = "0.11.0"
 prost-types = "0.11.1"
 tonic = { version = "0.8.0", features = ["transport", "tls"] }
-serde = "1.0.144"
-serde_json = "1.0.85"
-serde_path_to_error = "0.1.8"
+serde = "1.0"
+serde_json = "1.0"
+serde_path_to_error = "0.1"
 log = "0.4.17"
 gouth = "0.2.1"
 tokio = { version = "1.20.1", features = ["rt-multi-thread"] }
