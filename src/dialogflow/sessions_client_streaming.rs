@@ -147,10 +147,8 @@ impl SessionsClient {
                         streaming_recognize_result?.into_inner();
 
                     trace!("streaming_detect_intent_async_stream: entering loop");
-                    loop {
-                        if let Some(streaming_detect_intent_response) = response_stream.message().await? {
-                            yield streaming_detect_intent_response;
-                        }
+                    while let Some(streaming_detect_intent_response) = response_stream.message().await? {
+                        yield streaming_detect_intent_response;
                     }
                     trace!("streaming_detect_intent_async_stream: leaving loop");
                 }
@@ -177,11 +175,9 @@ impl SessionsClient {
             let mut response_stream: Streaming<StreamingDetectIntentResponse> =
                 streaming_recognize_result?.into_inner();
 
-            loop {
-                if let Some(streaming_detect_intent_response) = response_stream.message().await? {
-                    if let Some(result_sender) = &self.result_sender {
-                        result_sender.send(streaming_detect_intent_response).await?;
-                    }
+            while let Some(streaming_detect_intent_response) = response_stream.message().await? {
+                if let Some(result_sender) = &self.result_sender {
+                    result_sender.send(streaming_detect_intent_response).await?;
                 }
             }
         }
