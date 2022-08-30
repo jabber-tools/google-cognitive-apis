@@ -24,7 +24,7 @@ use crate::api::grpc::google::longrunning::{
     operation::Result as OperationResult, operations_client::OperationsClient, GetOperationRequest,
     Operation,
 };
-use crate::common::{get_token, new_grpc_channel, new_interceptor};
+use crate::common::{get_token, new_grpc_channel, new_interceptor, TokenInterceptor};
 use crate::errors::{Error, Result};
 use async_stream::try_stream;
 use futures_core::stream::Stream;
@@ -36,6 +36,7 @@ use std::time::Duration;
 use tokio::sync::mpsc;
 use tokio::time::sleep;
 use tokio_stream::wrappers::ReceiverStream;
+use tonic::codegen::InterceptedService;
 use tonic::Response as TonicResponse;
 use tonic::Status as TonicStatus;
 use tonic::{transport::Channel, Response as GrpcResponse, Streaming};
@@ -47,10 +48,10 @@ const GRPC_API_URL: &str = "https://speech.googleapis.com";
 #[derive(Debug)]
 pub struct Recognizer {
     /// internal GRPC speech client
-    speech_client: SpeechClient<Channel>,
+    speech_client: SpeechClient<InterceptedService<Channel, TokenInterceptor>>,
 
     /// internal GRPC google long running operations client
-    operations_client: Option<OperationsClient<Channel>>,
+    operations_client: Option<OperationsClient<InterceptedService<Channel, TokenInterceptor>>>,
 
     /// channel for sending audio data
     audio_sender: Option<mpsc::Sender<StreamingRecognizeRequest>>,
@@ -81,8 +82,8 @@ impl Recognizer {
 
         let token_header_val = get_token(google_credentials)?;
 
-        let speech_client: SpeechClient<Channel> =
-            SpeechClient::with_interceptor(channel, new_interceptor(token_header_val)?);
+        let speech_client =
+            SpeechClient::with_interceptor(channel, new_interceptor(token_header_val));
 
         let (audio_sender, audio_receiver) =
             mpsc::channel::<StreamingRecognizeRequest>(buffer_size.unwrap_or(1000));
@@ -112,13 +113,13 @@ impl Recognizer {
 
         let token_header_val = get_token(google_credentials)?;
 
-        let speech_client: SpeechClient<Channel> = SpeechClient::with_interceptor(
+        let speech_client = SpeechClient::with_interceptor(
             channel.clone(),
-            new_interceptor(token_header_val.clone())?,
+            new_interceptor(token_header_val.clone()),
         );
 
         let operations_client =
-            OperationsClient::with_interceptor(channel, new_interceptor(token_header_val)?);
+            OperationsClient::with_interceptor(channel, new_interceptor(token_header_val));
 
         Ok(Recognizer {
             speech_client,
@@ -139,8 +140,8 @@ impl Recognizer {
 
         let token_header_val = get_token(google_credentials)?;
 
-        let speech_client: SpeechClient<Channel> =
-            SpeechClient::with_interceptor(channel, new_interceptor(token_header_val)?);
+        let speech_client =
+            SpeechClient::with_interceptor(channel, new_interceptor(token_header_val));
 
         Ok(Recognizer {
             speech_client,

@@ -1,21 +1,30 @@
 //! Contains common utility & convenience functions.
 //! All functions here are intended for internal use only.
-use crate::errors::Result;
+use crate::errors::Result as CognativeResult;
 use crate::CERTIFICATES;
 use gouth::Builder;
 use std::sync::Arc;
 use tonic::{
-    metadata::MetadataValue,
+    metadata::{Ascii, MetadataValue},
+    service::Interceptor,
     transport::{Certificate, Channel, ClientTlsConfig},
+    Status,
 };
 
-/// Convenience function to return tonic Interceptor
-/// (see https://docs.rs/tonic/0.4.3/tonic/struct.Interceptor.html)
-#[allow(clippy::rc_buffer)]
-pub(crate) fn new_interceptor(token_header_val: Arc<String>) -> Result<tonic::Interceptor> {
-    let interceptor = tonic::Interceptor::new(move |mut req: tonic::Request<()>| {
-        let meta_result = MetadataValue::from_str(&token_header_val);
-
+#[derive(Clone)]
+pub struct TokenInterceptor(Arc<String>);
+impl TokenInterceptor {
+    fn new(token_header_val: Arc<String>) -> TokenInterceptor {
+        TokenInterceptor(token_header_val)
+    }
+}
+pub fn new_interceptor(token_header_val: Arc<String>) -> TokenInterceptor {
+    TokenInterceptor::new(token_header_val)
+}
+impl Interceptor for TokenInterceptor {
+    fn call(&mut self, request: tonic::Request<()>) -> Result<tonic::Request<()>, Status> {
+        let mut req = request;
+        let meta_result = MetadataValue::<Ascii>::from_str(&self.0);
         return match meta_result {
             Ok(meta) => {
                 req.metadata_mut().insert("authorization", meta);
@@ -33,8 +42,7 @@ pub(crate) fn new_interceptor(token_header_val: Arc<String>) -> Result<tonic::In
                 some_error
             ))),
         };
-    });
-    Ok(interceptor)
+    }
 }
 
 /// Creates new GRPC channel to *.googleapis.com API
@@ -44,7 +52,7 @@ pub(crate) async fn new_grpc_channel(
     domain_name: &'static str,
     channel_url: &'static str,
     timeout_secs: Option<u64>,
-) -> Result<Channel> {
+) -> CognativeResult<Channel> {
     let tls_config = ClientTlsConfig::new()
         .ca_certificate(Certificate::from_pem(CERTIFICATES))
         .domain_name(domain_name);
@@ -66,7 +74,7 @@ pub(crate) async fn new_grpc_channel(
 /// Returns google token (String value) from
 /// Google Cloud Platform project JSON credentials (provided as String).
 #[allow(clippy::rc_buffer)]
-pub(crate) fn get_token(google_credentials: impl AsRef<str>) -> Result<Arc<String>> {
+pub(crate) fn get_token(google_credentials: impl AsRef<str>) -> CognativeResult<Arc<String>> {
     let token = Builder::new().json(google_credentials).build()?;
     let token_header_val: Arc<String> = token.header_value()?;
     Ok(token_header_val)
