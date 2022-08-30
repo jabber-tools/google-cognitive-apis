@@ -54,8 +54,8 @@ impl SessionsClient {
 
     /// Returns sender than can be used to stream in audio bytes.
     pub fn get_audio_sink(&mut self) -> Option<mpsc::Sender<StreamingDetectIntentRequest>> {
-        if let Some(audio_sender) = &self.audio_sender {
-            Some(audio_sender.clone())
+        if let Some(audio_sender) = self.audio_sender.take() {
+            Some(audio_sender)
         } else {
             None
         }
