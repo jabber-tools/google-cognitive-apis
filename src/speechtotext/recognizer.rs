@@ -186,10 +186,8 @@ impl Recognizer {
                         streaming_recognize_result?.into_inner();
 
                     trace!("streaming_recognize: entering loop");
-                    loop {
-                        if let Some(streaming_recognize_response) = response_stream.message().await? {
-                            yield streaming_recognize_response;
-                        }
+                    while let Some(streaming_recognize_response) = response_stream.message().await? {
+                        yield streaming_recognize_response;
                     }
                     trace!("streaming_recognize: leaving loop");
                 }
@@ -213,11 +211,9 @@ impl Recognizer {
             let mut response_stream: Streaming<StreamingRecognizeResponse> =
                 streaming_recognize_result?.into_inner();
 
-            loop {
-                if let Some(streaming_recognize_response) = response_stream.message().await? {
-                    if let Some(result_sender) = &self.result_sender {
-                        result_sender.send(streaming_recognize_response).await?;
-                    }
+            while let Some(streaming_recognize_response) = response_stream.message().await? {
+                if let Some(result_sender) = &self.result_sender {
+                    result_sender.send(streaming_recognize_response).await?;
                 }
             }
         }
