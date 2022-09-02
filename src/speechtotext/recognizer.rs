@@ -136,13 +136,31 @@ impl Recognizer {
         })
     }
 
-    /// Returns sender than can be used to stream in audio bytes.
+    /// Returns sender than can be used to stream in audio bytes. This method can be called
+    /// multiple times to retrieve multiple senders.
     pub fn get_audio_sink(&mut self) -> Option<mpsc::Sender<StreamingRecognizeRequest>> {
         if let Some(audio_sender) = &self.audio_sender {
             Some(audio_sender.clone())
         } else {
             None
         }
+    }
+
+    /// Returns sender than can be used to stream in audio bytes. This method will take
+    /// the sender out of the option leaving None in its place. No additional sender
+    /// can be retrieved from recognizer after this call. When sender is dropped respective
+    /// stream will be closed.
+    pub fn take_audio_sink(&mut self) -> Option<mpsc::Sender<StreamingRecognizeRequest>> {
+        if let Some(audio_sender) = self.audio_sender.take() {
+            Some(audio_sender)
+        } else {
+            None
+        }
+    }
+
+    /// Drops audio sender so that respective stream can be closed.
+    pub fn drop_audio_sink(&mut self) {
+        self.audio_sender.take();
     }
 
     /// Returns receiver that can be used to receive speech-to-text results

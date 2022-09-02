@@ -54,6 +54,7 @@ pub struct OutputAudioConfig {
     pub synthesize_speech_config: Option<SynthesizeSpeechConfig>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct Status {
     code: i32,
@@ -78,6 +79,7 @@ pub struct SynthesizeSpeechConfig {
     pub voice: Option<VoiceSelectionParams>,
 }
 
+#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub struct VoiceSelectionParams {
     name: String,
