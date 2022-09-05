@@ -24,4 +24,4 @@ jobs:
     - name: Run fmt
       run: cargo fmt -- --check
     - name: Run clippy
-      run: cargo clippy -- -D warnings -A clippy::large_enum_variant -A clippy::upper-case-acronyms
+      run: cargo clippy -- -D warnings -A clippy::large_enum_variant -A clippy::upper-case-acronyms -A clippy::derive_partial_eq_without_eq

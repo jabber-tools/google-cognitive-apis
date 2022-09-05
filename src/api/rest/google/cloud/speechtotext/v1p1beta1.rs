@@ -297,7 +297,7 @@ pub fn deserialize_recognition_config(json_str: &str) -> Result<RecognitionConfi
             Err(Error::new(format!(
                 "Error when deserializing speech recognition config (v1p1beta1) at path: {}. Full error: {}",
                 err_path,
-                err.to_string()
+                err
             )))
         }
     }

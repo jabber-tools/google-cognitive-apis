@@ -110,7 +110,7 @@ pub fn deserialize_detect_intent_response(json_str: &str) -> Result<DetectIntent
             Err(Error::new(format!(
                 "Error when deserializing detect_intent ressponse at path: {}. Full error: {}",
                 err_path,
-                err.to_string()
+                err
             )))
         }
     }
@@ -122,8 +122,10 @@ pub fn deserialize_detect_intent_response(json_str: &str) -> Result<DetectIntent
 pub fn deserialize_detect_intent_response_params_to_str_map(
     json_val: &JsonData,
 ) -> Option<HashMap<String, String>> {
+    #[allow(clippy::needless_return)]
     return if json_val.is_object() {
         let mut hash_map = HashMap::new();
+        #[allow(clippy::for_loops_over_fallibles)]
         for params_map in json_val.as_object().iter() {
             for (key, val) in params_map.iter() {
                 let mut val_str = &val.to_string()[..];
