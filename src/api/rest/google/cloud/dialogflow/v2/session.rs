@@ -109,8 +109,7 @@ pub fn deserialize_detect_intent_response(json_str: &str) -> Result<DetectIntent
             let err_path = err.path().to_string();
             Err(Error::new(format!(
                 "Error when deserializing detect_intent ressponse at path: {}. Full error: {}",
-                err_path,
-                err
+                err_path, err
             )))
         }
     }
