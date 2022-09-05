@@ -3,6 +3,7 @@
 [![License](https://img.shields.io/badge/License-Apache-blue.svg)](LICENSE-APACHE)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE-MIT)
 [![version](https://img.shields.io/crates/v/google-cognitive-apis)](https://crates.io/crates/google-cognitive-apis)
+[![rustdoc][rustdoc-badge]][rustdoc-url]
 [rustdoc-badge]: https://img.shields.io/badge/rustdoc-0.1.5-green.svg
 [rustdoc-url]: https://jabber-tools.github.io/google-cognitive-apis/doc/0.1.5/google-cognitive-apis/index.html
 <!--
