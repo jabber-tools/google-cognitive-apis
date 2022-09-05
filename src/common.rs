@@ -1,6 +1,6 @@
 //! Contains common utility & convenience functions.
 //! All functions here are intended for internal use only.
-use crate::errors::Result as CognativeResult;
+use crate::errors::Result;
 use crate::CERTIFICATES;
 use gouth::Builder;
 use std::sync::Arc;
@@ -22,7 +22,10 @@ pub fn new_interceptor(token_header_val: Arc<String>) -> TokenInterceptor {
     TokenInterceptor::new(token_header_val)
 }
 impl Interceptor for TokenInterceptor {
-    fn call(&mut self, request: tonic::Request<()>) -> Result<tonic::Request<()>, Status> {
+    fn call(
+        &mut self,
+        request: tonic::Request<()>,
+    ) -> core::result::Result<tonic::Request<()>, Status> {
         let mut req = request;
         let meta_result = MetadataValue::<Ascii>::from_str(&self.0);
         return match meta_result {
@@ -52,7 +55,7 @@ pub(crate) async fn new_grpc_channel(
     domain_name: &'static str,
     channel_url: &'static str,
     timeout_secs: Option<u64>,
-) -> CognativeResult<Channel> {
+) -> Result<Channel> {
     let tls_config = ClientTlsConfig::new()
         .ca_certificate(Certificate::from_pem(CERTIFICATES))
         .domain_name(domain_name);
@@ -74,7 +77,7 @@ pub(crate) async fn new_grpc_channel(
 /// Returns google token (String value) from
 /// Google Cloud Platform project JSON credentials (provided as String).
 #[allow(clippy::rc_buffer)]
-pub(crate) fn get_token(google_credentials: impl AsRef<str>) -> CognativeResult<Arc<String>> {
+pub(crate) fn get_token(google_credentials: impl AsRef<str>) -> Result<Arc<String>> {
     let token = Builder::new().json(google_credentials).build()?;
     let token_header_val: Arc<String> = token.header_value()?;
     Ok(token_header_val)
