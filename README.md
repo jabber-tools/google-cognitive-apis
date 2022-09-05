@@ -3,7 +3,11 @@
 [![License](https://img.shields.io/badge/License-Apache-blue.svg)](LICENSE-APACHE)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE-MIT)
 [![version](https://img.shields.io/crates/v/google-cognitive-apis)](https://crates.io/crates/google-cognitive-apis)
+[rustdoc-badge]: https://img.shields.io/badge/rustdoc-0.1.5-green.svg
+[rustdoc-url]: https://jabber-tools.github.io/google-cognitive-apis/doc/0.1.5/google-cognitive-apis/index.html
+<!--
 [![docs](https://docs.rs/google-cognitive-apis/badge.svg)](https://docs.rs/google-cognitive-apis)
+-->
 
 Asynchronous Rust bindings for Google Cloud Platform cognitive gRPC APIs.
 Provides high level interfaces wrapping complexity of low-level GRPC implementation. Bidirectional gRPC streaming is supported
