@@ -6,6 +6,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE-MIT)
 [![Crates.io][crates-badge]][crates-url]
 [![rustdoc][rustdoc-badge]][rustdoc-url]
+
 [crates-badge]: https://img.shields.io/crates/v/google-cognitive-apis.svg
 [crates-url]: https://crates.io/crates/google-cognitive-apis
 [rustdoc-badge]: https://img.shields.io/badge/rustdoc-0.1.5-green.svg
