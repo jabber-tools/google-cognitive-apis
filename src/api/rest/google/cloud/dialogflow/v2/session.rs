@@ -121,8 +121,7 @@ pub fn deserialize_detect_intent_response(json_str: &str) -> Result<DetectIntent
 pub fn deserialize_detect_intent_response_params_to_str_map(
     json_val: &JsonData,
 ) -> Option<HashMap<String, String>> {
-    #[allow(clippy::needless_return)]
-    return if json_val.is_object() {
+    if json_val.is_object() {
         let mut hash_map = HashMap::new();
         #[allow(clippy::for_loops_over_fallibles)]
         for params_map in json_val.as_object().iter() {
@@ -137,7 +136,7 @@ pub fn deserialize_detect_intent_response_params_to_str_map(
         Some(hash_map)
     } else {
         None
-    };
+    }
 }
 
 mod tests {

@@ -49,8 +49,7 @@ pub(crate) async fn new_grpc_channel(
         .ca_certificate(Certificate::from_pem(CERTIFICATES))
         .domain_name(domain_name);
 
-    #[allow(clippy::needless_return)]
-    return if let Some(timeout) = timeout_secs {
+    if let Some(timeout) = timeout_secs {
         Ok(Channel::from_static(channel_url)
             .tls_config(tls_config.clone())?
             .timeout(std::time::Duration::from_secs(timeout))
@@ -61,7 +60,7 @@ pub(crate) async fn new_grpc_channel(
             .tls_config(tls_config.clone())?
             .connect()
             .await?)
-    };
+    }
 }
 
 /// Returns google token (String value) from
