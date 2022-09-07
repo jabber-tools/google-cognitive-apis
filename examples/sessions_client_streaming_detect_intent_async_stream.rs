@@ -50,7 +50,15 @@ async fn main() {
             .await
             .unwrap();
 
-    let audio_sender = sessions_client.get_audio_sink().unwrap();
+    // Make sure to use take_audio_sink, not get_audio_sink here! get_audio_sink is cloning the sender
+    // contained in session client whereas take_audio_sink will take the sender/sink out of the wrapping option.
+    // Thus once tokio task pushing the audio data into Google Dialogflow will push all the data, sender will be
+    // dropped signaling no more data will be sent. Only then Dialogflow will stream back the final
+    // response (with detected intent, fulfillment messages, etc.).
+    // If get_audio_sink is used instead following error occurs ( give it a try:-) ):
+    // Audio Timeout Error: Long duration elapsed without audio. Audio should be sent close to real time.
+    // See also method drop_audio_sink
+    let audio_sender = sessions_client.take_audio_sink().unwrap();
 
     let stream = sessions_client.streaming_detect_intent_async_stream().await;
     pin_mut!(stream); // needed for iteration

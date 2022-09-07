@@ -306,7 +306,7 @@ dependencies = [
 
 [[package]]
 name = "google-cognitive-apis"
-version = "0.1.5"
+version = "0.1.6"
 dependencies = [
  "async-stream",
  "env_logger",

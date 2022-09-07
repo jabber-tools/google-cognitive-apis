@@ -9,7 +9,7 @@
 
 [crates-badge]: https://img.shields.io/crates/v/google-cognitive-apis.svg
 [crates-url]: https://crates.io/crates/google-cognitive-apis
-[rustdoc-badge]: https://img.shields.io/badge/rustdoc-0.1.5-green.svg
+[rustdoc-badge]: https://img.shields.io/badge/rustdoc-0.1.6-green.svg
 [rustdoc-url]: https://jabber-tools.github.io/google_cognitive_apis/doc/0.1.5/google_cognitive_apis/index.html
 
 
@@ -26,9 +26,16 @@ Following APIs are currently supported:
 
 | Cognitive API                                               | Feature name | Status          |
 | ----------------------------------------------------- | ------------ | --------------- |
-| [**Dialogflow ES**](https://cloud.google.com/dialogflow)        | `dialogflow`     | **In progress**    |
+| [**Dialogflow ES**](https://cloud.google.com/dialogflow)        | `dialogflow`     | **Complete**    |
 | [**Speech-to-text**](https://cloud.google.com/speech-to-text)   | `speech-to-text`  | **Complete**    |
 | [**Text-to-speech**](https://cloud.google.com/text-to-speech) | `text-to-speech`    | **Complete**    |
+
+**Note**: version 0.1.5 introduced new methods (**take_audio_sink**, **drop_audio_sink**), that are addressing issues of APIs **streaming_detect_intent** and **streaming_detect_intent_async_stream** in previous versions.
+For more details see examples **sessions_client_streaming_detect_intent** and **sessions_client_streaming_detect_intent_async_stream**. 
+
+Version 0.1.6 is only updating readme file and above-mentioned examples to demonstrate differences in behaviour when using **get_audio_sink** versus **take_audio_sink**. No fixes/new functionalities are introduced by this version (hence rust doc is still pointing to 0.1.5 doc).
+
+Version 0.2.0 will upgrade underlying GRPC stack (**tonic** and **prost** libraries). 
 
 ## Google API proto definitions
 Google proto definitions have been taken from [this](https://github.com/googleapis/googleapis) repo.
@@ -40,11 +47,6 @@ Google proto definitions have been taken from [this](https://github.com/googleap
 * For Dialogflow we currently support only *SessionClient* (The purpose of this library is not support different DialogFlow management APIs).
 * REST APIs are supported with single purpose: to define structs that will enable deserialization of JSON config structures and their conversion into GRPC counterparts.
 Full support for REST APIs will be not introduced.
-* Dialogflow *detect intent streaming* (i.e. receiving audio data, performing speech-to-text followed by intent detection) is not fully supported.
-It seems google APIs require half-close operation to be supported on audio stream to find out no more data will arrive and initiate intent detection.
-Details can be found [here](https://cloud.google.com/dialogflow/es/docs/how/detect-intent-stream#detect-intent-stream-go).
-Thus after streaming in all audio bytes API will simply timeout complaining data needs to be arriving promptly. If you know how to implement half-close with Rust/Tonic toolset let me know (raise PR/issue)!
-Until then use *speech-to-text streaming* API and Dialogflow *detect intent* API separately to achieve the same result.
 
 ## Examples
 
