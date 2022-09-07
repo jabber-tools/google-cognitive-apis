@@ -9,8 +9,8 @@
 
 [crates-badge]: https://img.shields.io/crates/v/google-cognitive-apis.svg
 [crates-url]: https://crates.io/crates/google-cognitive-apis
-[rustdoc-badge]: https://img.shields.io/badge/rustdoc-0.1.6-green.svg
-[rustdoc-url]: https://jabber-tools.github.io/google_cognitive_apis/doc/0.1.5/google_cognitive_apis/index.html
+[rustdoc-badge]: https://img.shields.io/badge/rustdoc-0.2.0-green.svg
+[rustdoc-url]: https://jabber-tools.github.io/google_cognitive_apis/doc/0.2.0/google_cognitive_apis/index.html
 
 
 Asynchronous Rust bindings for Google Cloud Platform cognitive gRPC APIs.
@@ -30,12 +30,8 @@ Following APIs are currently supported:
 | [**Speech-to-text**](https://cloud.google.com/speech-to-text)   | `speech-to-text`  | **Complete**    |
 | [**Text-to-speech**](https://cloud.google.com/text-to-speech) | `text-to-speech`    | **Complete**    |
 
-**Note**: version 0.1.5 introduced new methods (**take_audio_sink**, **drop_audio_sink**), that are addressing issues of APIs **streaming_detect_intent** and **streaming_detect_intent_async_stream** in previous versions.
-For more details see examples **sessions_client_streaming_detect_intent** and **sessions_client_streaming_detect_intent_async_stream**. 
-
-Version 0.1.6 is only updating readme file and above-mentioned examples to demonstrate differences in behaviour when using **get_audio_sink** versus **take_audio_sink**. No fixes/new functionalities are introduced by this version (hence rust doc is still pointing to 0.1.5 doc).
-
-Version 0.2.0 will upgrade underlying GRPC stack (**tonic** and **prost** libraries). 
+**IMPORTANT**:  Version 0.2.0 is upgrading underlying GRPC stack (**tonic**, **prost** and **prost-build** libraries). Please not that **prost-build** now requires external Protocol Buffer compiler (protoc).
+Details can be found [here](https://docs.rs/prost-build/latest/prost_build/#sourcing-protoc). You can download protoc from [github](https://github.com/protocolbuffers/protobuf/releases).
 
 ## Google API proto definitions
 Google proto definitions have been taken from [this](https://github.com/googleapis/googleapis) repo.
