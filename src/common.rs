@@ -27,6 +27,7 @@ impl Interceptor for TokenInterceptor {
         request: tonic::Request<()>,
     ) -> core::result::Result<tonic::Request<()>, Status> {
         let mut req = request;
+        #[allow(deprecated)]
         let meta_result = MetadataValue::<Ascii>::from_str(&self.0);
         return match meta_result {
             Ok(meta) => {
