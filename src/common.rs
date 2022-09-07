@@ -5,17 +5,29 @@ use crate::CERTIFICATES;
 use gouth::Builder;
 use std::sync::Arc;
 use tonic::{
-    metadata::MetadataValue,
+    metadata::{Ascii, MetadataValue},
+    service::Interceptor,
     transport::{Certificate, Channel, ClientTlsConfig},
+    Status,
 };
 
-/// Convenience function to return tonic Interceptor
-/// (see https://docs.rs/tonic/0.4.3/tonic/struct.Interceptor.html)
-#[allow(clippy::rc_buffer)]
-pub(crate) fn new_interceptor(token_header_val: Arc<String>) -> Result<tonic::Interceptor> {
-    let interceptor = tonic::Interceptor::new(move |mut req: tonic::Request<()>| {
-        let meta_result = MetadataValue::from_str(&token_header_val);
-
+#[derive(Clone)]
+pub struct TokenInterceptor(Arc<String>);
+impl TokenInterceptor {
+    fn new(token_header_val: Arc<String>) -> TokenInterceptor {
+        TokenInterceptor(token_header_val)
+    }
+}
+pub fn new_interceptor(token_header_val: Arc<String>) -> TokenInterceptor {
+    TokenInterceptor::new(token_header_val)
+}
+impl Interceptor for TokenInterceptor {
+    fn call(
+        &mut self,
+        request: tonic::Request<()>,
+    ) -> core::result::Result<tonic::Request<()>, Status> {
+        let mut req = request;
+        let meta_result = MetadataValue::<Ascii>::from_str(&self.0);
         return match meta_result {
             Ok(meta) => {
                 req.metadata_mut().insert("authorization", meta);
@@ -33,8 +45,7 @@ pub(crate) fn new_interceptor(token_header_val: Arc<String>) -> Result<tonic::In
                 some_error
             ))),
         };
-    });
-    Ok(interceptor)
+    }
 }
 
 /// Creates new GRPC channel to *.googleapis.com API

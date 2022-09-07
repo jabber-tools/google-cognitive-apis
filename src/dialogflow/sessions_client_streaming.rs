@@ -7,7 +7,7 @@ use crate::api::grpc::google::cloud::dialogflow::v2beta1::{
     sessions_client::SessionsClient as GrpcSessionsClient, DetectIntentResponse,
     StreamingDetectIntentRequest, StreamingDetectIntentResponse,
 };
-use crate::common::{get_token, new_grpc_channel, new_interceptor};
+use crate::common::{get_token, new_grpc_channel, new_interceptor, TokenInterceptor};
 use crate::errors::Result;
 use async_stream::try_stream;
 use futures_core::stream::Stream;
@@ -15,6 +15,7 @@ use log::*;
 use std::result::Result as StdResult;
 use tokio::sync::mpsc;
 use tokio_stream::wrappers::ReceiverStream;
+use tonic::codegen::InterceptedService;
 use tonic::Response as TonicResponse;
 use tonic::Status as TonicStatus;
 use tonic::{transport::Channel, Streaming};
@@ -24,7 +25,7 @@ use tonic::{transport::Channel, Streaming};
 #[derive(Debug)]
 pub struct SessionsClient {
     /// internal GRPC dialogflow sessions client
-    sessions_client: GrpcSessionsClient<Channel>,
+    sessions_client: GrpcSessionsClient<InterceptedService<Channel, TokenInterceptor>>,
 
     /// channel for sending audio data
     audio_sender: Option<mpsc::Sender<StreamingDetectIntentRequest>>,
@@ -59,8 +60,8 @@ impl SessionsClient {
 
         let token_header_val = get_token(google_credentials)?;
 
-        let sessions_client: GrpcSessionsClient<Channel> =
-            GrpcSessionsClient::with_interceptor(channel, new_interceptor(token_header_val)?);
+        let sessions_client =
+            GrpcSessionsClient::with_interceptor(channel, new_interceptor(token_header_val));
 
         let (audio_sender, audio_receiver) =
             mpsc::channel::<StreamingDetectIntentRequest>(buffer_size.unwrap_or(1000));

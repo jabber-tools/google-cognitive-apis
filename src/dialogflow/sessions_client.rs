@@ -7,9 +7,10 @@ use crate::api::grpc::google::cloud::dialogflow::v2beta1::{
     sessions_client::SessionsClient as GrpcSessionsClient, DetectIntentRequest,
     DetectIntentResponse, StreamingDetectIntentRequest, StreamingDetectIntentResponse,
 };
-use crate::common::{get_token, new_grpc_channel, new_interceptor};
+use crate::common::{get_token, new_grpc_channel, new_interceptor, TokenInterceptor};
 use crate::errors::Result;
 use tokio::sync::mpsc;
+use tonic::codegen::InterceptedService;
 use tonic::transport::Channel;
 use tonic::Response as TonicResponse;
 
@@ -19,7 +20,7 @@ use tonic::Response as TonicResponse;
 #[allow(dead_code)]
 pub struct SessionsClient {
     /// internal GRPC dialogflow sessions client
-    sessions_client: GrpcSessionsClient<Channel>,
+    sessions_client: GrpcSessionsClient<InterceptedService<Channel, TokenInterceptor>>,
 
     /// channel for sending audio data
     audio_sender: Option<mpsc::Sender<StreamingDetectIntentRequest>>,
@@ -43,8 +44,8 @@ impl SessionsClient {
 
         let token_header_val = get_token(google_credentials)?;
 
-        let sessions_client: GrpcSessionsClient<Channel> =
-            GrpcSessionsClient::with_interceptor(channel, new_interceptor(token_header_val)?);
+        let sessions_client =
+            GrpcSessionsClient::with_interceptor(channel, new_interceptor(token_header_val));
 
         Ok(SessionsClient {
             sessions_client,
