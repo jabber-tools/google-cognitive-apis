@@ -30,7 +30,7 @@ Following APIs are currently supported:
 | [**Speech-to-text**](https://cloud.google.com/speech-to-text)   | `speech-to-text`  | **Complete**    |
 | [**Text-to-speech**](https://cloud.google.com/text-to-speech) | `text-to-speech`    | **Complete**    |
 
-**IMPORTANT**:  Version 0.2.0 is upgrading underlying GRPC stack (**tonic**, **prost** and **prost-build** libraries). Please not that **prost-build** now requires external Protocol Buffer compiler (protoc).
+**IMPORTANT**:  Version 0.2.0 is upgrading underlying GRPC stack (**tonic**, **prost** and **prost-build** libraries). Please keep in mind that **prost-build** requires now external Protocol Buffer compiler (**protoc**).
 Details can be found [here](https://docs.rs/prost-build/latest/prost_build/#sourcing-protoc). You can download protoc from [github](https://github.com/protocolbuffers/protobuf/releases).
 
 ## Google API proto definitions
