@@ -11,7 +11,7 @@ exclude = [
     "examples/*"
 ]
 repository = "https://github.com/jabber-tools/google-cognitive-apis/"
-documentation = "https://docs.rs/google-cognitive-apis/0.2.0"
+documentation = "https://jabber-tools.github.io/google_cognitive_apis/doc/0.2.0/google_cognitive_apis/index.html"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
