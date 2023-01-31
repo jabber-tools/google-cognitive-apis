@@ -10,6 +10,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("cargo:rerun-if-changed=res/proto/google/cloud/texttospeech/v1/cloud_tts.proto");
     println!("cargo:rerun-if-changed=res/proto/google/cloud/texttospeech/v1beta1/cloud_tts.proto");
 
+    let skip_proto_compilation = std::env::var("SKIP_PROTO_FILES_COMPILATION")
+        .map(|v| v == "1")
+        .unwrap_or(false);
+    if skip_proto_compilation {
+        return Ok(());
+    }
+
     tonic_build::configure()
         .build_client(true)
         .build_server(false)
