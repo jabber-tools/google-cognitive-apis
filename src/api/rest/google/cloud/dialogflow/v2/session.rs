@@ -123,7 +123,7 @@ pub fn deserialize_detect_intent_response_params_to_str_map(
 ) -> Option<HashMap<String, String>> {
     if json_val.is_object() {
         let mut hash_map = HashMap::new();
-        #[allow(clippy::for_loops_over_fallibles)]
+        #[allow(for_loops_over_fallibles)]
         for params_map in json_val.as_object().iter() {
             for (key, val) in params_map.iter() {
                 let mut val_str = &val.to_string()[..];
