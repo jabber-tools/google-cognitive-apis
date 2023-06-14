@@ -81,6 +81,10 @@ pub enum RecognitionConfigModel {
     phone_call,
     video,
     default,
+    latest_long,
+    latest_short,
+    medical_conversation,
+    medical_dictation
 }
 
 impl fmt::Display for RecognitionConfigModel {
