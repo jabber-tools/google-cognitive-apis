@@ -47,6 +47,7 @@ google-cloud-texttospeech-v1 = []
 google-cloud-texttospeech-v1beta1 = []
 
 google-cloud-speechtotext-v1 = []
+google-cloud-speechtotext-v2 = []
 google-cloud-speechtotext-v1p1beta1 = []
 
 google-cloud-dialogflow-v2 = []
@@ -57,6 +58,7 @@ google-cloud-dialogflow-cx-v3beta1 = []
 speech-to-text = [
     "google-cloud-speechtotext-v1",
     "google-cloud-speechtotext-v1p1beta1",
+    "google-cloud-speechtotext-v2"
 ]
 
 text-to-speech = [

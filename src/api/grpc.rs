@@ -45,6 +45,11 @@ pub mod google {
                 #[cfg(any(feature = "default", feature = "google-cloud-speechtotext-v1p1beta1",))]
                 include_proto!("google.cloud.speech.v1p1beta1");
             }
+
+            pub mod v2 {
+                #[cfg(any(feature = "default", feature = "google-cloud-speechtotext-v2",))]
+                include_proto!("google.cloud.speech.v2");
+            }
         }
 
         pub mod dialogflow {
