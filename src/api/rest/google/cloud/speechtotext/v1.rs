@@ -85,6 +85,9 @@ pub enum RecognitionConfigModel {
     latest_short,
     medical_conversation,
     medical_dictation,
+    chirp_3,
+    chirp_2,
+    telephony
 }
 
 impl fmt::Display for RecognitionConfigModel {
