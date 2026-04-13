@@ -6,6 +6,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     println!("cargo:rerun-if-changed=res/proto/google/cloud/speech/v1/cloud_speech.proto");
     println!("cargo:rerun-if-changed=res/proto/google/cloud/speech/v1p1beta1/cloud_speech.proto");
+    println!("cargo:rerun-if-changed=res/proto/google/cloud/speech/v2/cloud_speech.proto");
 
     println!("cargo:rerun-if-changed=res/proto/google/cloud/texttospeech/v1/cloud_tts.proto");
     println!("cargo:rerun-if-changed=res/proto/google/cloud/texttospeech/v1beta1/cloud_tts.proto");
@@ -27,6 +28,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "res/proto/google/cloud/dialogflow/v2beta1/session.proto",
                 "res/proto/google/cloud/speech/v1/cloud_speech.proto",
                 "res/proto/google/cloud/speech/v1p1beta1/cloud_speech.proto",
+                "res/proto/google/cloud/speech/v2/cloud_speech.proto",
                 "res/proto/google/cloud/texttospeech/v1/cloud_tts.proto",
                 "res/proto/google/cloud/texttospeech/v1beta1/cloud_tts.proto",
             ],
