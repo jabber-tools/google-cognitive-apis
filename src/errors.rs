@@ -7,6 +7,10 @@ use crate::api::grpc::google::cloud::speechtotext::v1::{
 };
 use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::StreamingRecognizeRequest as StreamingRecognizeRequestBeta;
 use crate::api::grpc::google::cloud::speechtotext::v1p1beta1::StreamingRecognizeResponse as StreamingRecognizeResponseBeta;
+use crate::api::grpc::google::cloud::speechtotext::v2::{
+    StreamingRecognizeRequest as StreamingRecognizeRequestv2,
+    StreamingRecognizeResponse as StreamingRecognizeResponsev2,
+};
 use gouth::Error as GAuthError;
 use prost::DecodeError as ProstDecodeError;
 use std::result;
@@ -101,6 +105,15 @@ impl From<SendError<StreamingRecognizeRequestBeta>> for Error {
     }
 }
 
+impl From<SendError<StreamingRecognizeRequestv2>> for Error {
+    fn from(error: SendError<StreamingRecognizeRequestv2>) -> Error {
+        Error {
+            message: format!("{}", error),
+            code: None,
+        }
+    }
+}
+
 impl From<SendError<StreamingRecognizeResponse>> for Error {
     fn from(error: SendError<StreamingRecognizeResponse>) -> Error {
         Error {
@@ -112,6 +125,15 @@ impl From<SendError<StreamingRecognizeResponse>> for Error {
 
 impl From<SendError<StreamingRecognizeResponseBeta>> for Error {
     fn from(error: SendError<StreamingRecognizeResponseBeta>) -> Error {
+        Error {
+            message: format!("{}", error),
+            code: None,
+        }
+    }
+}
+
+impl From<SendError<StreamingRecognizeResponsev2>> for Error {
+    fn from(error: SendError<StreamingRecognizeResponsev2>) -> Error {
         Error {
             message: format!("{}", error),
             code: None,
